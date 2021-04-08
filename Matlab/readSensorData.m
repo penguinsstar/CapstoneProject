@@ -12,7 +12,7 @@ function readSensorData(src, ~)
 
     % If 1001 data points have been collected from the Arduino, switch off the
     % callbacks and plot the data.
-    if src.UserData.Count > 1001
+    if src.UserData.Count > 200*15
         configureCallback(src, "off");
         figure(1);
         plot(src.UserData.Data(2:end));
