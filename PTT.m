@@ -1,35 +1,37 @@
-%% BASIC CODE BY ABHIJITH BAILUR, modified by Frank Li
+%% BASIC CODE BY ABHIJITH BAILUR, modified by Frank Li & Daniel Wan
 clc;
 clear all;
 close all;
-x=load('day2_0917.txt');
+T = readtable('sensor-data.xlsx');
+
 %% data to calibrate
-DBP1=x(1,3);
-DBP2=x(2,3);
-DBP3=x(3,3);
-SBP1=x(1,4);
-SBP2=x(2,4);
-SBP3=x(3,4);
+% DBP1=x(1,3);
+% DBP2=x(2,3);
+% DBP3=x(3,3);
+% SBP1=x(1,4);
+% SBP2=x(2,4);
+% SBP3=x(3,4);
+
 %% ECG signal
-y=x(1:95000,1); % ECG signal
-figure,plot(y);
+y=T.('NormECG'); % ECG signal
+figure,plot(y,'b');
 title('ECG signal');
 xlabel('time');
 ylabel('amplitude');
 hold on
-
 %% PPG signal
-z=x(1:95000,2); % PPG signal
+z=T.('LPF_NORM_PPG'); % PPG signal
 plot(z,'r');
 title('PPG signal');
 xlabel('time');
 ylabel('amplitude');
 %% SCG signal
-s=x(1:95000,3); % PPG signal
-plot(s,'r');
+s=T.('NormSCG'); % PPG signal
+plot(s,'color','#77AC30');
 title('SCG signal');
 xlabel('time');
 ylabel('amplitude');
+
 %% peak detection of ECG
 j=1;
 n=length(y);
@@ -44,64 +46,45 @@ ecg_peaks=j-1;
 ecg_pos=pos./1000;
 plot(pos,val,'*r');
 title('ECG peak');
-%% minus peak detection of PPG
+%% negative peak detection of PPG
 m=1;
 n=length(z);
-for i=2:n-1 && m<j
-    if z(i)< z(i-1) && z(i)<= z(i+1) && z(i)< 0.45*min(z)
-       val(m)= z(i);
-       pos1(m)=i;
-       m=m+1;
-     end
+zM=movmean(z,6);
+for i=2:n-1
+    %if (m<j)
+        if z(i)< z(i-1) && z(i)<= z(i+1) && z(i)< (zM(i+1))
+           val1(m)= z(i);
+           pos1(m)=i;
+           m=m+1;
+        end
+    %end
 end
 ppg_peaks=m-1;
 ppg_pos=pos1./1000;
-ppg_val=val;
-plot(pos1,val,'*g');
+ppg_val=val1;
+plot(pos1,val1,'*g');
 title('PPG peak');
 %% peak detection of SCG
 q=1;
 n=length(s);
-for i=2:n-1 && q<j
-    if s(i)> s(i-1) && s(i)>= s(i+1) && s(i)> 0.45*max(s)
-       val(q)= s(i);
-       pos2(q)=i;
-       q=q+1;
-     end
+for i=2:n-1 
+    %if q<j
+        if s(i)> s(i-1) && s(i)>= s(i+1) && s(i)> 0.3*max(s)
+           val2(q)= s(i);
+           pos2(q)=i;
+           q=q+1;
+        end
+    %end
 end
 scg_peaks=q-1;
 scg_pos=pos2./1000;
-scg_val=val;
-plot(pos2,val,'*b');
+scg_val=val2;
+plot(pos2,val2,'*m');
 title('ECG & PPG & SCG signal');
 legend('ECG signal','PPG signal','SCG signal');
-% %% HRV
-% j=1;
-% for i=1:ecg_peaks-1
-%     e(j)= ecg_pos(i+1)-ecg_pos(i);% gives RR interval
-%     j=j+1;
-%     
-% end 
-% hr=60./mean(e); % 60/ mean of RR interval
-% 
-% hrv= (60./e); % 60/ each RR interval
-% figure,stairs(hrv);
-% title('HRV');
-% xlabel('samples');
-% ylabel('hrv');
-% 
-% %% PRV
-% k=1;
-% for i=1:ppg_peaks-1
-%     f(k)= ppg_pos(i+1)-ppg_pos(i); 
-%     k=k+1;
-% end 
-% pr=60./mean(f); 
-% prv= 60./f; 
-% figure,stairs(prv);
-% title('PRV');
-% xlabel('samples');
-% ylabel('prv');
+
+
+
 %% PTT
 ptt=(ppg_pos-scg_pos);
 figure,stairs(ptt);
@@ -136,6 +119,38 @@ xlabel('amplitude');
 ylabel('time');
 title('PP & DBP & SBP signal');
 legend('PP signal','DBP signal','SBP signal');
+
+%% old irrelevant code 
+%{
+% %% HRV
+% j=1;
+% for i=1:ecg_peaks-1
+%     e(j)= ecg_pos(i+1)-ecg_pos(i);% gives RR interval
+%     j=j+1;
+%     
+% end 
+% hr=60./mean(e); % 60/ mean of RR interval
+% 
+% hrv= (60./e); % 60/ each RR interval
+% figure,stairs(hrv);
+% title('HRV');
+% xlabel('samples');
+% ylabel('hrv');
+% 
+% %% PRV
+% k=1;
+% for i=1:ppg_peaks-1
+%     f(k)= ppg_pos(i+1)-ppg_pos(i); 
+%     k=k+1;
+% end 
+% pr=60./mean(f); 
+% prv= 60./f; 
+% figure,stairs(prv);
+% title('PRV');
+% xlabel('samples');
+% ylabel('prv');
+%}
+%{
 %% notch detection
 
 %%moving average filter
@@ -174,4 +189,4 @@ ref_index=mean(ri)
 h=0.60;%h is the length from subject's finger tip to heart
 si=(h./ptt);
 stif_index=mean(si)
-
+%}
