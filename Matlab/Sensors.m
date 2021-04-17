@@ -7,7 +7,7 @@ smoothingWindowSize = 20;
 baudRate = 9600;
 
 %% Configure Arduino Serial Port
-% arduinoObj = serialport('COM7',baudRate);
+arduinoObj = serialport('COM7',baudRate);
 configureTerminator(arduinoObj,"CR/LF");
 flush(arduinoObj);
 arduinoObj.UserData.Data = struct("PPG",[], "ECG", [], "SCG", [],"NormPPG", [], "NormECG", [], "NormSCG", [], "Count", 1);

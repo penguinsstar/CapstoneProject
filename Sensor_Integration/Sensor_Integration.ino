@@ -32,8 +32,17 @@
 using namespace std;
 #include <Wire.h>                 // Must include Wire library for I2C
 #include "SparkFun_MMA8452Q.h"    // Click here to get the library: http://librarymanager/All#SparkFun_MMA8452Q
+#include "max86150.h"
 #include <arduino.h>                 // Must include Wire library for I2C
-#include "MAX30105.h"
+
+
+//// sample rate for MAX86150
+//const uint8_t PPG_CONFIG_1 = 0x0E ;
+//const uint8_t PPG_SAMPLE_RATE_MASK = 0b11000011 ;
+//const uint8_t PPG_SAMPLE_RATE_200 = 0b00010100 ;
+//const uint8_t ECG_CONFIG_1 = 0x3C;
+//const uint8_t ECG_SAMPLE_RATE_MASK = 0b11111000 ;
+//const uint8_t ECG_SAMPLE_RATE_200 = 0b00000011;
 
 
 #define MMA8452_ADDRESS 0x1D  // 0x1D if SA0 is high, 0x1C if low
@@ -46,38 +55,30 @@ using namespace std;
 signed int x = 0;
 signed int y = 0;
 
-const float fs = 22; //sampling frequency in Hertz (Hz)
-MMA8452Q accel;                   // create instance of the MMA8452 class
-MAX30105 particleSensor;
+MMA8452Q accel;                  // create instance of the MMA8452 class
+MAX86150 max86150Sensor;         // instance of MAX86150 sensor
+
 
 
 void setup() {
   Serial.begin(9600);
-   pinMode(10, INPUT); // Setup for leads off detection LO +
-  pinMode(11, INPUT); // Setup for leads off detection LO -
-  Serial.println("MMA8452Q Raw Data Reading Code!");
   Wire.begin();
-
+  
+  // Initialize PPG/ECG sensor
+    if (max86150Sensor.begin(Wire, I2C_SPEED_FAST) == false)
+    {
+        Serial.println("MAX86150 was not found. Please check wiring/power. ");
+        while (1);
+    }
+    // sampling rate for ECG and PPG is 200Hz
+    max86150Sensor.setup(); //Configure sensor. Use 6.4mA for LED drive
+    
+  // Initialize accelerometer
   if (accel.begin() == false) {
     Serial.println("Not Connected. Please check connections and read the hookup guide.");
     while (1);
   }
-  // Initialize PPG sensor
-  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
-  {
-    Serial.println("MAX30105 was not found. Please check wiring/power. ");
-    while (1);
-  }
 
-  //Setup to sense a nice looking saw tooth on the plotter
-  byte ledBrightness = 0x1F; //Options: 0=Off to 255=50mA
-  byte sampleAverage = 8; //Options: 1, 2, 4, 8, 16, 32
-  byte ledMode = 2; //Options: 1 = Red only, 2 = Red + IR, 3 = Red + IR + Green
-  int sampleRate = 100; //Options: 50, 100, 200, 400, 800, 1000, 1600, 3200
-  int pulseWidth = 411; //Options: 69, 118, 215, 411
-  int adcRange = 4096; //Options: 2048, 4096, 8192, 16384
-
-  particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
  //done
 }
 
@@ -107,22 +108,27 @@ void loop() {
   if (accel.available()) {      // Wait for new data from accelerometer
     MMA8452Standby();  // Must be in standby to change registers
 
-  // Set up the full scale range to 2, 4, or 8g.
+  accel.setDataRate(ODR_200); // set sampling rate to 200
   writeRegister(0x0F, 0x30);// Turns on HPF bypassing and LP filtering 
   writeRegister(0x2B,0X02);// Turns on High-res mode
   writeRegister(0x0E, 0X11);// Turns on HPF_out to the output registers and sets full scale range to 4g
-  //The default data rate is 800Hz and we don't modify it in this example code
   MMA8452Active();  // Set to active to start reading
+
+  Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.print(accel.getZ()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
   
-    // send the value of analog input 0:
-      Serial.print(analogRead(A0));Serial.print("\t");Serial.print(accel.getZ());Serial.print("\t");  Serial.println(particleSensor.getIR()); /* Serial.print(" "); Serial.println(zf[i]);*/
-      
-  //Send raw data to plotter
 
     }
   }
 
-
+//void setPpgSampleRate(uint8_t sampleRate)
+//{
+//  max86150Sensor.bitMask(PPG_CONFIG_1, PPG_SAMPLE_RATE_MASK, sampleRate);
+//}
+//
+//void setEcgSampleRate(uint8_t sampleRate)
+//{
+//  max86150Sensor.bitMask(ECG_CONFIG_1, ECG_SAMPLE_RATE_MASK, sampleRate);
+//}
 
 // Sets the MMA8452 to standby mode. It must be in standby to change most register settings
 void MMA8452Standby()
