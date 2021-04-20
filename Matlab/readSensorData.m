@@ -15,7 +15,7 @@ function readSensorData(src, ~)
 
     % If 1001 data points have been collected from the Arduino, switch off the
     % callbacks and plot the data.
-    if src.UserData.Data.Count > 500
+    if src.UserData.Data.Count > 1000
         configureCallback(src, "off");
         figure(1);
         src.UserData.Data.NormPPG = normalize(src.UserData.Data.PPG(2:end));
@@ -23,8 +23,8 @@ function readSensorData(src, ~)
         src.UserData.Data.NormSCG = normalize(src.UserData.Data.SCG(2:end));
         
         hold on;
-        plot(src.UserData.Data.NormPPG);
-        plot(src.UserData.Data.NormECG);  
+%         plot(src.UserData.Data.NormPPG);
+%         plot(src.UserData.Data.NormECG);  
         plot(src.UserData.Data.NormSCG);
         legend('PPG', 'ECG', 'SCG');
         hold off;

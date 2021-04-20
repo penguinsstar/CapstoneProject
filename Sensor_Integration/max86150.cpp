@@ -363,7 +363,7 @@ void MAX86150::setup(byte powerLevel, byte sampleAverage, byte ledMode, int samp
 		else if (sampleAverage == 8) setFIFOAverage(MAX86150_SAMPLEAVG_8);
 		else if (sampleAverage == 16) setFIFOAverage(MAX86150_SAMPLEAVG_16);
 		else if (sampleAverage == 32) setFIFOAverage(MAX86150_SAMPLEAVG_32);
-		else setFIFOAverage(MAX86150_SAMPLEAVG_4);
+		else setFIFOAverage(MAX86150_SAMPLEAVG_8);
 
 		uint16_t FIFOCode = 0x00;
 
@@ -380,10 +380,10 @@ void MAX86150::setup(byte powerLevel, byte sampleAverage, byte ledMode, int samp
 		//writeRegister8(_i2caddr,MAX86150_FIFOCONTROL1, (char)(FIFOCode & 0x00FF) );
 		//writeRegister8(_i2caddr,MAX86150_FIFOCONTROL2, (char)(FIFOCode >>8) );
 
-		writeRegister8(_i2caddr,MAX86150_PPGCONFIG1,0b11010111);
+		writeRegister8(_i2caddr,MAX86150_PPGCONFIG1,0b00010111);
 		//writeRegister8(_i2caddr,MAX86150_PPGCONFIG1,0b11100111);
 
-		writeRegister8(_i2caddr,MAX86150_PPGCONFIG2, 0x00); // no sample averaging
+		writeRegister8(_i2caddr,MAX86150_PPGCONFIG2, 0x06); 
 		writeRegister8(_i2caddr,MAX86150_LED_RANGE, 0x00 ); // PPG_ADC_RGE: 32768nA
 
 		writeRegister8(_i2caddr,MAX86150_SYSCONTROL,0x04);//start FIFO
@@ -391,8 +391,8 @@ void MAX86150::setup(byte powerLevel, byte sampleAverage, byte ledMode, int samp
 		writeRegister8(_i2caddr,MAX86150_ECG_CONFIG1,0b00000011);
 		writeRegister8(_i2caddr,MAX86150_ECG_CONFIG3,0b00001101);
 
-		setPulseAmplitudeRed(0xFF);
-		setPulseAmplitudeIR(0xFF);
+		setPulseAmplitudeRed(0x1F);
+		setPulseAmplitudeIR(0x1F);
 
   //Multi-LED Mode Configuration, Enable the reading of the three LEDs
   //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

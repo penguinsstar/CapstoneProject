@@ -36,14 +36,6 @@ using namespace std;
 #include <arduino.h>                 // Must include Wire library for I2C
 
 
-//// sample rate for MAX86150
-//const uint8_t PPG_CONFIG_1 = 0x0E ;
-//const uint8_t PPG_SAMPLE_RATE_MASK = 0b11000011 ;
-//const uint8_t PPG_SAMPLE_RATE_200 = 0b00010100 ;
-//const uint8_t ECG_CONFIG_1 = 0x3C;
-//const uint8_t ECG_SAMPLE_RATE_MASK = 0b11111000 ;
-//const uint8_t ECG_SAMPLE_RATE_200 = 0b00000011;
-
 
 #define MMA8452_ADDRESS 0x1D  // 0x1D if SA0 is high, 0x1C if low
 
@@ -61,7 +53,7 @@ MAX86150 max86150Sensor;         // instance of MAX86150 sensor
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(19200);
   Wire.begin();
   
   // Initialize PPG/ECG sensor
@@ -78,57 +70,34 @@ void setup() {
     Serial.println("Not Connected. Please check connections and read the hookup guide.");
     while (1);
   }
+  accel.init(SCALE_4G, ODR_200);
+  
+//  MMA8452Standby();  // Must be in standby to change registers
+//  writeRegister(0x0F, 0x30);// Turns on HPF bypassing and LP filtering 
+//  writeRegister(0x2B,0X02);// Turns on High-res mode
+//  writeRegister(0x0E, 0X11);// Turns on HPF_out to the output registers and sets full scale range to 4g
+//  MMA8452Active();  // Set to active to start reading
+
 
  //done
 }
 
-// Initialize the MMA8452 registers 
-// See the many application notes for more info on setting all of these registers:
-// http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=MMA8452Q
-void initMMA8452()
-{
-  byte c = readRegister(WHO_AM_I);  // Read WHO_AM_I register
-  if (c == 0x2A) // WHO_AM_I should always be 0x2A
-  {  
-    Serial.println("MMA8452Q is online...");
-  }
-  else
-  {
-    Serial.print("Could not connect to MMA8452Q: 0x");
-    Serial.println(c, HEX);
-    while(1) ; // Loop forever if communication doesn't happen
-  }
-
- 
+unsigned long  sampleCount = 0;
+unsigned long initTime = millis();
+void loop() {
+   if (accel.available()){
+//     Serial.println(accel.getZ());
+//     max86150Sensor.getIR();
+//     max86150Sensor.getECG();
+//     sampleCount++;
+//     if (sampleCount == 1000){
+//       Serial.print(sampleCount); Serial.print("\t"); Serial.println(millis() - initTime);
+//     }
+    
+  Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.print(accel.getZ()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
+   }
 }
 
-
-
-void loop() {
-  if (accel.available()) {      // Wait for new data from accelerometer
-    MMA8452Standby();  // Must be in standby to change registers
-
-  accel.setDataRate(ODR_200); // set sampling rate to 200
-  writeRegister(0x0F, 0x30);// Turns on HPF bypassing and LP filtering 
-  writeRegister(0x2B,0X02);// Turns on High-res mode
-  writeRegister(0x0E, 0X11);// Turns on HPF_out to the output registers and sets full scale range to 4g
-  MMA8452Active();  // Set to active to start reading
-
-  Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.print(accel.getZ()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
-  
-
-    }
-  }
-
-//void setPpgSampleRate(uint8_t sampleRate)
-//{
-//  max86150Sensor.bitMask(PPG_CONFIG_1, PPG_SAMPLE_RATE_MASK, sampleRate);
-//}
-//
-//void setEcgSampleRate(uint8_t sampleRate)
-//{
-//  max86150Sensor.bitMask(ECG_CONFIG_1, ECG_SAMPLE_RATE_MASK, sampleRate);
-//}
 
 // Sets the MMA8452 to standby mode. It must be in standby to change most register settings
 void MMA8452Standby()
