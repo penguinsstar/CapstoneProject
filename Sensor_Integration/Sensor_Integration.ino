@@ -47,7 +47,6 @@ using namespace std;
 signed int x = 0;
 signed int y = 0;
 
-MMA8452Q accel;                  // create instance of the MMA8452 class
 MAX86150 max86150Sensor;         // instance of MAX86150 sensor
 
 
@@ -55,7 +54,6 @@ MAX86150 max86150Sensor;         // instance of MAX86150 sensor
 void setup() {
   Serial.begin(19200);
   Wire.begin();
-  
   // Initialize PPG/ECG sensor
     if (max86150Sensor.begin(Wire, I2C_SPEED_FAST) == false)
     {
@@ -65,18 +63,6 @@ void setup() {
     // sampling rate for ECG and PPG is 200Hz
     max86150Sensor.setup(); //Configure sensor. Use 6.4mA for LED drive
     
-  // Initialize accelerometer
-  if (accel.begin() == false) {
-    Serial.println("Not Connected. Please check connections and read the hookup guide.");
-    while (1);
-  }
-  accel.init(SCALE_4G, ODR_200);
-  
-//  MMA8452Standby();  // Must be in standby to change registers
-//  writeRegister(0x0F, 0x30);// Turns on HPF bypassing and LP filtering 
-//  writeRegister(0x2B,0X02);// Turns on High-res mode
-//  writeRegister(0x0E, 0X11);// Turns on HPF_out to the output registers and sets full scale range to 4g
-//  MMA8452Active();  // Set to active to start reading
 
 
  //done
@@ -85,7 +71,7 @@ void setup() {
 unsigned long  sampleCount = 0;
 unsigned long initTime = millis();
 void loop() {
-   if (accel.available()){
+//   if (accel.available()){
 //     Serial.println(accel.getZ());
 //     max86150Sensor.getIR();
 //     max86150Sensor.getECG();
@@ -94,58 +80,58 @@ void loop() {
 //       Serial.print(sampleCount); Serial.print("\t"); Serial.println(millis() - initTime);
 //     }
     
-  Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.print(accel.getZ()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
-   }
+  Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
+//   }
 }
 
 
 // Sets the MMA8452 to standby mode. It must be in standby to change most register settings
-void MMA8452Standby()
-{
-  byte c = readRegister(CTRL_REG1);
-  writeRegister(CTRL_REG1, c & ~(0x01)); //Clear the active bit to go into standby
-}
-
-// Sets the MMA8452 to active mode. Needs to be in this mode to output data
-void MMA8452Active()
-{
-  byte c = readRegister(CTRL_REG1);
-  writeRegister(CTRL_REG1, c | 0x01); //Set the active bit to begin detection
-}
-
-// Read bytesToRead sequentially, starting at addressToRead into the dest byte array
-void readRegisters(byte addressToRead, int bytesToRead, byte * dest)
-{
-  Wire.beginTransmission(MMA8452_ADDRESS);
-  Wire.write(addressToRead);
-  Wire.endTransmission(false); //endTransmission but keep the connection active
-
-  Wire.requestFrom(MMA8452_ADDRESS, bytesToRead); //Ask for bytes, once done, bus is released by default
-
-  while(Wire.available() < bytesToRead); //Hang out until we get the # of bytes we expect
-
-  for(int x = 0 ; x < bytesToRead ; x++)
-    dest[x] = Wire.read();    
-}
-
-// Read a single byte from addressToRead and return it as a byte
-byte readRegister(byte addressToRead)
-{
-  Wire.beginTransmission(MMA8452_ADDRESS);
-  Wire.write(addressToRead);
-  Wire.endTransmission(false); //endTransmission but keep the connection active
-
-  Wire.requestFrom(MMA8452_ADDRESS, 1); //Ask for 1 byte, once done, bus is released by default
-
-  while(!Wire.available()) ; //Wait for the data to come back
-  return Wire.read(); //Return this one byte
-}
-
-// Writes a single byte (dataToWrite) into addressToWrite
-void writeRegister(byte addressToWrite, byte dataToWrite)
-{
-  Wire.beginTransmission(MMA8452_ADDRESS);
-  Wire.write(addressToWrite);
-  Wire.write(dataToWrite);
-  Wire.endTransmission(); //Stop transmitting
-}
+//void MMA8452Standby()
+//{
+//  byte c = readRegister(CTRL_REG1);
+//  writeRegister(CTRL_REG1, c & ~(0x01)); //Clear the active bit to go into standby
+//}
+//
+//// Sets the MMA8452 to active mode. Needs to be in this mode to output data
+//void MMA8452Active()
+//{
+//  byte c = readRegister(CTRL_REG1);
+//  writeRegister(CTRL_REG1, c | 0x01); //Set the active bit to begin detection
+//}
+//
+//// Read bytesToRead sequentially, starting at addressToRead into the dest byte array
+//void readRegisters(byte addressToRead, int bytesToRead, byte * dest)
+//{
+//  Wire.beginTransmission(MMA8452_ADDRESS);
+//  Wire.write(addressToRead);
+//  Wire.endTransmission(false); //endTransmission but keep the connection active
+//
+//  Wire.requestFrom(MMA8452_ADDRESS, bytesToRead); //Ask for bytes, once done, bus is released by default
+//
+//  while(Wire.available() < bytesToRead); //Hang out until we get the # of bytes we expect
+//
+//  for(int x = 0 ; x < bytesToRead ; x++)
+//    dest[x] = Wire.read();    
+//}
+//
+//// Read a single byte from addressToRead and return it as a byte
+//byte readRegister(byte addressToRead)
+//{
+//  Wire.beginTransmission(MMA8452_ADDRESS);
+//  Wire.write(addressToRead);
+//  Wire.endTransmission(false); //endTransmission but keep the connection active
+//
+//  Wire.requestFrom(MMA8452_ADDRESS, 1); //Ask for 1 byte, once done, bus is released by default
+//
+//  while(!Wire.available()) ; //Wait for the data to come back
+//  return Wire.read(); //Return this one byte
+//}
+//
+//// Writes a single byte (dataToWrite) into addressToWrite
+//void writeRegister(byte addressToWrite, byte dataToWrite)
+//{
+//  Wire.beginTransmission(MMA8452_ADDRESS);
+//  Wire.write(addressToWrite);
+//  Wire.write(dataToWrite);
+//  Wire.endTransmission(); //Stop transmitting
+//}

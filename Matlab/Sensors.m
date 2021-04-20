@@ -1,3 +1,6 @@
+clc;
+clear arduinoObj;
+close all;
 %% Variables
 lowPassFc = 20;
 SCGlowPassFc = 22;
@@ -26,24 +29,18 @@ PPGdata = arduinoObj.UserData.Data.PPG;
 ECGdata = arduinoObj.UserData.Data.ECG;
 HpFilteredData = highpass(PPGdata, highPassFc, SamplingFrequency);
 HpFilteredDataECG = highpass(ECGdata, highPassFc, SamplingFrequency);
-% figure(2);
-% title('After HPF');
-% plot(HpFilteredData);
+
 
 %% Design and apply low pass filter
-SCGdata = arduinoObj.UserData.Data.SCG;
 digitalLPF = designfilt('lowpassiir', 'FilterOrder', butterworthOrder, 'HalfPowerFrequency', lowPassFc/(SamplingFrequency/2), 'DesignMethod', 'butter');
 ECGdigitalLPF = designfilt('lowpassiir', 'FilterOrder', butterworthOrder, 'HalfPowerFrequency', ECGlowPassFc/(SamplingFrequency/2), 'DesignMethod', 'butter');
-% SCGdigitalLPF = designfilt('lowpassiir', 'FilterOrder', 1, 'HalfPowerFrequency', SCGlowPassFc/(SamplingFrequency/2), 'DesignMethod', 'butter');
 LpFilteredData = filter(digitalLPF, HpFilteredData);
 LpFilteredDataECG = filter(ECGdigitalLPF, HpFilteredDataECG);
-LpFilteredDataSCG = lowpass(SCGdata, SCGlowPassFc, SamplingFrequency);
 figure(3);
 hold on;
 title('After LPF');
 plot(normalize(LpFilteredData));
 plot(normalize(LpFilteredDataECG));  
-plot(normalize(LpFilteredDataSCG));
 legend('PPG', 'ECG', 'SCG');
 hold off;
 
@@ -52,20 +49,16 @@ movingAverageWindowSize = 40;
 averagedData = movmean(LpFilteredData, movingAverageWindowSize);
 smoothedData = smoothdata(LpFilteredData);
 ECGsmoothedData = smoothdata(LpFilteredDataECG);
-SCGsmoothedData = smoothdata(LpFilteredDataSCG);
 figure(4);
 hold on;
 title('Heuristically Smoothed Data');
 plot(normalize(smoothedData));
 plot(normalize(LpFilteredDataECG));
-plot(normalize(LpFilteredDataSCG));
 legend('PPG', 'ECG');
 hold off;
 
-% figure(5);
-% title('Moving Average (Window = 2 beats)');
-% plot(averagedData);
-
-
-
-
+%% Calculate DBP
+%pre-calibrated coefficients for testing
+b1 = -6319/475;
+b2 = 3129/19;
+Calculate_DBP(normalize(LpFilteredDataECG), normalize(smoothedData), 1, b1, b2, SamplingFrequency);
