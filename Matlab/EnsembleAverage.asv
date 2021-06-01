@@ -1,0 +1,46 @@
+clear all;
+close all;
+data = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
+ECG = data.('ECG');
+PPG = data.('PPG');
+%% peak detection of ECG
+y = ECG;
+sampling_rate = 200;
+figure,plot(y,'b');
+title('ECG signal');
+xlabel('time');
+ylabel('amplitude');
+hold on
+
+j=1;
+n=length(y);
+for i=2:n-1
+    if y(i)> y(i-1) && y(i)>= y(i+1) && y(i)> 0.45*max(y)
+       val(j)= y(i);
+       pos(j)=i;
+       j=j+1;
+     end
+end
+ecg_peaks=j-1;
+ecg_pos=pos./sampling_rate;
+plot(pos,val,'*r');
+title('ECG peak');
+
+%% split waveforms into single beats
+window_size = 40;
+ensembles = zeros(40,length(pos));
+for i=1:length(pos)
+    l_limit = max(pos(1), pos(window_size/2));
+    u_limit = min(pos(end), pos(window_size/2)-1);
+    ensembles(:,i) = ECG(l_limit:pos(i)+20-1);
+end
+
+figure;
+plot(ensembles)
+title('ECG ensembles');
+averaged_ECG = mean(ensembles, 2);
+figure;
+plot(averaged_ECG);
+title('ensemble-averaged ECG signal');
+
+
