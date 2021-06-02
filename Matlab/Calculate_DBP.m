@@ -1,6 +1,6 @@
 %% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan & Khalil Ammar
 function Calculate_DBP(ECG, PPG, isCalibrated, b1, b2, sampling_rate)
-% T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet2');
+T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
 isCalibrated = 1;
 sampling_rate = 100;
 
@@ -14,16 +14,16 @@ sampling_rate = 100;
 % SBP3=x(3,4);
 
 %% ECG signal
-% y=normalize(T.('ECG')); % ECG signal
-y = ECG;
+y=normalize(T.('ECG')); % ECG signal
+% y = ECG;
 figure,plot(y,'b');
 title('ECG signal');
 xlabel('time');
 ylabel('amplitude');
 hold on
 %% PPG signal
-% z=normalize(T.('PPG')); % PPG signal
-z = PPG;
+z=normalize(T.('PPG')); % PPG signal
+% z = PPG;
 plot(z,'r');
 title('PPG signal');
 xlabel('time');

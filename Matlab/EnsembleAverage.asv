@@ -1,46 +1,89 @@
-clear all;
 close all;
+% clear all;
 data = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
-ECG = data.('ECG');
-PPG = data.('PPG');
+% ECG = data.('ECG');
+% PPG = data.('PPG');
+ECG = normalize(ECG_import);
+PPG = normalize(PPG_import);
 %% peak detection of ECG
-y = ECG;
-sampling_rate = 200;
-figure,plot(y,'b');
+sampling_rate = 100;
+figure;
+plot(ECG,'b');
 title('ECG signal');
 xlabel('time');
 ylabel('amplitude');
 hold on
 
 j=1;
-n=length(y);
+n=length(ECG);
 for i=2:n-1
-    if y(i)> y(i-1) && y(i)>= y(i+1) && y(i)> 0.45*max(y)
-       val(j)= y(i);
-       pos(j)=i;
+    if ECG(i)> ECG(i-1) && ECG(i)>= ECG(i+1) && ECG(i)> 0.45*max(ECG)
+       val(j)= ECG(i);
+       ECG_peaks(j)=i;
        j=j+1;
      end
 end
-ecg_peaks=j-1;
-ecg_pos=pos./sampling_rate;
-plot(pos,val,'*r');
-title('ECG peak');
+ECG_peak_nbr=j-1;
+ECG_peaks_time=ECG_peaks./sampling_rate;
+plot(ECG_peaks,val,'*r');
+title('ECG peaks');
+
+%% PPG peak detection
+plot(PPG,'r');
+title('PPG signal');
+xlabel('time');
+ylabel('amplitude');
+
+[PPG_peaks,PPG_valleys] = peakdet(PPG, 0.5);
+
+plot(PPG_peaks(:,1),PPG_peaks(:,2),'*g');
+title('PPG peak');
+title('ECG & PPG signal');
+legend('ECG signal','ECG peaks', 'PPG signal', 'PPG peaks');
 
 %% split waveforms into single beats
-window_size = 40;
-ensembles = zeros(40,length(pos));
-for i=1:length(pos)
-    l_limit = max(pos(1), pos(window_size/2));
-    u_limit = min(pos(end), pos(window_size/2)-1);
-    ensembles(:,i) = ECG(l_limit:pos(i)+20-1);
+ECG_window_size = floor(mean(diff(ECG_peaks))); % window size defined as the average distance between peaks
+if mod(window_size,2) ~= 0
+    window_size = window_size - 1;
 end
 
+ECG_ensembles = zeros(window_size,length(ECG_peaks)-1);
+PPG_ensembles = zeros(window_size, length(PPG_peaks)-1);
+
+% split ECG waveform around peaks
+for i=2:length(ECG_peaks)
+    l_limit = max(1, ECG_peaks(i) - window_size/2); %ensure minimum index = 1
+    if l_limit == 1
+        u_limit = window_size;
+    else
+        u_limit = min(length(ECG), ECG_peaks(i) + window_size/2 -1); %ensure maximum index = length(ECG)
+        if u_limit == length(ECG)
+            l_limit = length(ECG) - window_size + 1;
+        end
+    end
+    ECG_ensembles(:,i-1) = ECG(l_limit:u_limit);
+    PPG_ensembles(:,i-1) = PPG(l_limit:u_limit);
+end
+
+
+%% Calculate & Plot Ensemble-Averaged Signals
 figure;
-plot(ensembles)
+plot(ECG_ensembles);
 title('ECG ensembles');
-averaged_ECG = mean(ensembles, 2);
 figure;
-plot(averaged_ECG);
-title('ensemble-averaged ECG signal');
+plot(PPG_ensembles);
+title('PPG ensembles');
 
+% calculate ensemble average for ECG and PPG signals
+ens_avg_ECG = mean(ECG_ensembles, 2);
+ens_avg_PPG = mean(PPG_ensembles, 2);
+[PPG_max, PPG_max_idx] = max(
+ptt = (max(ens_avg_PPG) - max(ens_avg_ECG))/sampling_rate 
 
+figure;
+hold on;
+plot(ens_avg_ECG);
+plot(ens_avg_PPG);
+hold off;
+title('ensemble-averaged ECG and PPG signals');
+legend('ECG', 'PPG');
