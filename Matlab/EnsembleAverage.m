@@ -1,10 +1,9 @@
 close all;
-% clear all;
+clear all;
 data = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
-% ECG = data.('ECG');
-% PPG = data.('PPG');
-ECG = normalize(ECG_import);
-PPG = normalize(PPG_import);
+ECG = data.('ECG');
+PPG = data.('PPG');
+
 %% peak detection of ECG
 sampling_rate = 100;
 figure;
@@ -42,7 +41,7 @@ title('ECG & PPG signal');
 legend('ECG signal','ECG peaks', 'PPG signal', 'PPG peaks');
 
 %% split waveforms into single beats
-ECG_window_size = floor(mean(diff(ECG_peaks))); % window size defined as the average distance between peaks
+window_size = floor(mean(diff(ECG_peaks))); % window size defined as the average distance between peaks
 if mod(window_size,2) ~= 0
     window_size = window_size - 1;
 end
@@ -79,7 +78,7 @@ ens_avg_ECG = mean(ECG_ensembles, 2);
 ens_avg_PPG = mean(PPG_ensembles, 2);
 [PPG_max, PPG_max_idx] = max(ens_avg_PPG);
 [ECG_max, ECG_max_idx] = max(ens_avg_ECG);
-ptt = (max(PPG_max_idx) - max(ECG_max_idx))/sampling_rate 
+ptt = (max(PPG_max_idx) - max(ECG_max_idx))/sampling_rate; 
 
 figure;
 hold on;
