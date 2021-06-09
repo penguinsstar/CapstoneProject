@@ -1,84 +1,102 @@
 %% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan & Khalil Ammar
 function Calculate_DBP(ECG, PPG, isCalibrated, b1, b2, sampling_rate)
-% T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet2');
+
+%% Debug parameters
+T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
 isCalibrated = 1;
 sampling_rate = 100;
 
 
-%% data to calibrate
-% DBP1=x(1,3);
-% DBP2=x(2,3);
-% DBP3=x(3,3);
-% SBP1=x(1,4);
-% SBP2=x(2,4);
-% SBP3=x(3,4);
-
 %% ECG signal
-% y=normalize(T.('ECG')); % ECG signal
-y = ECG;
-figure,plot(y,'b');
+ECG=normalize(T.('ECG')); % ECG signal
+% y = ECG;
+figure,plot(ECG,'b');
 title('ECG signal');
 xlabel('time');
 ylabel('amplitude');
 hold on
 %% PPG signal
-% z=normalize(T.('PPG')); % PPG signal
-z = PPG;
-plot(z,'r');
+PPG=normalize(T.('PPG')); % PPG signal
+% z = PPG;
+plot(PPG,'r');
 title('PPG signal');
 xlabel('time');
 ylabel('amplitude');
 
 %% peak detection of ECG
+plot(ECG,'b');
+title('ECG signal');
+xlabel('time');
+ylabel('amplitude');
+hold on
+
 j=1;
-n=length(y);
+n=length(ECG);
 for i=2:n-1
-    if y(i)> y(i-1) && y(i)>= y(i+1) && y(i)> 0.45*max(y)
-       val(j)= y(i);
-       pos(j)=i;
+    if ECG(i)> ECG(i-1) && ECG(i)>= ECG(i+1) && ECG(i)> 0.45*max(ECG)
+       val(j)= ECG(i);
+       ECG_peaks(j)=i;
        j=j+1;
      end
 end
-ecg_peaks=j-1;
-ecg_pos=pos./sampling_rate;
-plot(pos,val,'*r');
+plot(ECG_peaks,val,'*r');
 title('ECG peak');
+
 %% peak detection of PPG
-m=1;
-n=length(z);
-zM=movmean(z,6);
-for i=2:n-1
-    if z(i) > z(i-1) && z(i) >= z(i+1) && z(i) > (zM(i+1))
-       val1(m)= z(i);
-       pos1(m)=i;
-       m=m+1;
-    end
-end
-ppg_peaks=m-1;
-ppg_pos=pos1./sampling_rate;
-ppg_val=val1;
-plot(pos1,val1,'*g');
+[PPG_peaks,~] = peakdet(PPG, 0.5);
+
+plot(PPG_peaks(:,1),PPG_peaks(:,2),'*g');
 title('PPG peak');
 title('ECG & PPG signal');
 legend('ECG signal','PPG signal');
 
-
-%% PTT
-ptt = [];
-ppg_ptr = 1;
-for i = 1:ecg_peaks
-    for j = ppg_ptr:ppg_peaks
-        if(ppg_pos(j) > ecg_pos(i))
-            ptt(end+1) = ppg_pos(j) - ecg_pos(i);
-            ppg_ptr = j;
-            break;
-        end   
-    end  
+%% split waveforms into single beats
+window_size = floor(mean(diff(ECG_peaks))); % window size defined as the average distance between peaks
+if mod(window_size,2) ~= 0
+    window_size = window_size - 1;
 end
-figure,stairs(ptt);
-title('PTT');
-xlabel('ptt');
-ylabel('time');
+
+ECG_ensembles = zeros(window_size,length(ECG_peaks)-1);
+PPG_ensembles = zeros(window_size, length(ECG_peaks)-1);
+
+% split ECG waveform around peaks
+for i=2:length(ECG_peaks)
+    l_limit = max(1, ECG_peaks(i) - window_size/2); %ensure minimum index = 1
+    if l_limit == 1
+        u_limit = window_size;
+    else
+        u_limit = min(length(ECG), ECG_peaks(i) + window_size/2 -1); %ensure maximum index = length(ECG)
+        if u_limit == length(ECG)
+            l_limit = length(ECG) - window_size + 1;
+        end
+    end
+    ECG_ensembles(:,i-1) = ECG(l_limit:u_limit);
+    PPG_ensembles(:,i-1) = PPG(l_limit:u_limit);
+end
+
+
+%% Calculate & Plot Ensemble-Averaged Signals
+figure;
+plot(ECG_ensembles);
+title('ECG ensembles');
+figure;
+plot(PPG_ensembles);
+title('PPG ensembles');
+
+% calculate ensemble average for ECG and PPG signals
+ens_avg_ECG = mean(ECG_ensembles, 2);
+ens_avg_PPG = mean(PPG_ensembles, 2);
+[~, PPG_max_idx] = max(ens_avg_PPG);
+[~, ECG_max_idx] = max(ens_avg_ECG);
+ptt = (max(PPG_max_idx) - max(ECG_max_idx))/sampling_rate; 
+
+figure;
+hold on;
+plot(ens_avg_ECG);
+plot(ens_avg_PPG);
+hold off;
+title('ensemble-averaged ECG and PPG signals');
+legend('ECG', 'PPG');
 
 %% calculate parameters
 if (~isCalibrated)
@@ -92,8 +110,7 @@ if (~isCalibrated)
     b1 = ptt_vars.b1;
     b2 = ptt_vars.b2;
 end
-mean_ptt = mean(ptt)
 %% calculate BP and PP
-DBP=(b1/mean_ptt)+b2;
+DBP=(b1/ptt)+b2;
 disp('Your Diastolic Blood Pressure Is: ');
 disp(DBP);
