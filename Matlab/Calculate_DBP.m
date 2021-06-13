@@ -1,4 +1,4 @@
-%% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan & Khalil Ammar
+%% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan, Akshay Kumar & Khalil Ammar
 function Calculate_DBP(ECG, PPG, isCalibrated, b1, b2, sampling_rate)
 
     %% Debug parameters
