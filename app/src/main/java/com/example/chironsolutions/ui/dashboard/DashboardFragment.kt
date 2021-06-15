@@ -64,14 +64,20 @@ class DashboardFragment : Fragment() {
 
         var series = LineGraphSeries<DataPoint>()
 
+
         for (i in 0..49)
         {
             x += 0.1
-            y = sin(5.0*i) +80
+            y = sin(5.0*i) + 80
 
-            series.appendData(DataPoint(x,y), true, 50)
+            series.appendData(DataPoint(x,y), true, 51)
 
         }
+        graphView.viewport.isYAxisBoundsManual = true
+        graphView.viewport.setMinY(0.0)
+        graphView.viewport.setMaxY(120.0)
+        graphView.viewport.setScalableY(true)
+        series.setTitle("Sample Diastolic BP")
         graphView.addSeries(series)
     }
 
