@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.chironsolutions.R
 import com.example.chironsolutions.databinding.FragmentDashboardBinding
+import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.android.synthetic.main.fragment_dashboard.*
+import kotlin.math.sin
+
 
 class DashboardFragment : Fragment() {
 
@@ -20,6 +23,7 @@ class DashboardFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    var x : Double = 0.0;  var y : Double = 0.0
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -36,9 +40,39 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
 
         })
+
         return root
 
+    }
 
+
+    override fun onViewCreated(
+            view: View,
+            savedInstanceState: Bundle?) {
+
+        val graphView = idGraphView
+//        var series = LineGraphSeries(
+//            arrayOf<DataPoint>(
+//                DataPoint(x, y),
+//                DataPoint(x+0.1, y+5),
+//                DataPoint(x+0.2, y+3),
+//                DataPoint(x+0.3, y+2),
+//                DataPoint(x+0.4, y+6)
+//            )
+//        )
+//        graphView.addSeries(series)
+
+        var series = LineGraphSeries<DataPoint>()
+
+        for (i in 0..49)
+        {
+            x += 0.1
+            y = sin(5.0*i) +80
+
+            series.appendData(DataPoint(x,y), true, 50)
+
+        }
+        graphView.addSeries(series)
     }
 
     override fun onDestroyView() {
