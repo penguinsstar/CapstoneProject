@@ -8,6 +8,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.chironsolutions.databinding.ActivityMainBinding
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,5 +29,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_settings))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    fun DataEntry(id: Int, PPG: Double, ECG: Double, DBP: Double, date: Date) {
+
+        var userData = UserDataModel(id, PPG, ECG, DBP, date)
+    }
+
+    fun sum(a: Int, b: Int): Int {
+        return a + b
     }
 }
