@@ -8,13 +8,15 @@ public class UserDataModel {
     private double PPG;
     private double ECG;
     private double DBP;
-    private Date date;
+    private double SBP;
+    private long date;
 
-    public UserDataModel(int id, double PPG, double ECG, double DBP, Date date) {
+    public UserDataModel(int id, double PPG, double ECG, double DBP, double SBP, long date) {
         this.id = id;
         this.PPG = PPG;
         this.ECG = ECG;
         this.DBP = DBP;
+        this.SBP = SBP;
         this.date = date;
     }
 
@@ -53,11 +55,17 @@ public class UserDataModel {
         this.DBP = DBP;
     }
 
-    public Date getDate() {
+    public double getSBP() {
+        return SBP;
+    }
+
+    public void setSBP(double SBP) { this.SBP = SBP; }
+
+    public long getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(long date) {
         this.date = date;
     }
 }

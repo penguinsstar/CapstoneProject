@@ -29,12 +29,27 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_settings))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        //testDB
+        DataEntry(-1, 5.1, 4.0, 70.0, 90.0, 500)
+        DataEntry(-1, 5.2, 7.0, 34.0, 99.0, 600)
     }
 
-    fun DataEntry(id: Int, PPG: Double, ECG: Double, DBP: Double, date: Date) {
+    fun DataEntry(id: Int, PPG: Double, ECG: Double, DBP: Double, SBP: Double,  date: Long) {
 
-        var userData = UserDataModel(id, PPG, ECG, DBP, date)
+        var userData: UserDataModel
+        try {
+            userData = UserDataModel(id, PPG, ECG, DBP, SBP, date)
+        }
+        catch(e: Exception){
+            userData = UserDataModel(-1, 0.0,0.0,0.0,0.0,0)
+        }
+
+        var dataBaseHandler = DatabaseHandler(this@MainActivity)
+        dataBaseHandler.addOne(userData)
     }
+
+
 
     fun sum(a: Int, b: Int): Int {
         return a + b
