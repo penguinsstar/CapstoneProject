@@ -73,12 +73,17 @@ class DashboardFragment : Fragment() {
             series.appendData(DataPoint(x,y), true, 51)
 
         }
-        graphView.viewport.isYAxisBoundsManual = true
+        graphView.getViewport().setYAxisBoundsManual(true)
         graphView.viewport.setMinY(0.0)
         graphView.viewport.setMaxY(120.0)
-        graphView.viewport.setScalableY(true)
+        graphView.getViewport().setXAxisBoundsManual(false)
+        //graphView.viewport.setScalableY(true)
         series.setTitle("Sample Diastolic BP")
         graphView.addSeries(series)
+
+        graphView.setTitle("Blood Pressure");
+        graphView.getGridLabelRenderer().setVerticalAxisTitle("Blood Pressure (mmHg)");
+        graphView.getGridLabelRenderer().setHorizontalAxisTitle("Time");
     }
 
     override fun onDestroyView() {
