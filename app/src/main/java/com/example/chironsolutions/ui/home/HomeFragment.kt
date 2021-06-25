@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.chironsolutions.R
 import com.example.chironsolutions.databinding.FragmentHomeBinding
+import kotlinx.android.synthetic.main.fragment_home.*
 
 class HomeFragment : Fragment() {
 
@@ -36,6 +35,20 @@ class HomeFragment : Fragment() {
 
         })
         return root
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?) {
+
+
+        val guage = idGauge
+        val guageText = idGuageNumber
+
+        guage.setValue(80)
+        guageText.setText(guage.getValue().toString());
+
+
     }
 
     override fun onDestroyView() {

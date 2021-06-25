@@ -4,4 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment"/>
+    tools:context=".ui.home.HomeFragment">
+
+
+<!--    android:layout_below="@+id/gauge1"-->
+    <pl.pawelkleczkowski.customgauge.CustomGauge
+        android:id="@+id/idGauge"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        app:gaugeEndValue="180"
+        app:gaugePointEndColor="@android:color/holo_green_light"
+        app:gaugePointStartColor="@android:color/holo_blue_dark"
+        app:gaugeStartAngle="135"
+        app:gaugeStartValue="0"
+        app:gaugeStrokeCap="ROUND"
+        app:gaugeStrokeColor="@android:color/darker_gray"
+        app:gaugeStrokeWidth="10dp"
+        app:gaugeSweepAngle="270"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.36" />
+
+    <TextView
+        android:id="@+id/idGuageNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="@+id/idGauge"
+        app:layout_constraintEnd_toEndOf="@+id/idGauge"
+        app:layout_constraintStart_toStartOf="@+id/idGauge"
+        app:layout_constraintTop_toTopOf="@+id/idGauge" />
+
+    <TextView
+        android:id="@+id/idGuageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="Blood Pressure"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/idGauge"
+        app:layout_constraintEnd_toEndOf="@+id/idGauge"
+        app:layout_constraintStart_toStartOf="@+id/idGauge" />
+
+    <TextView
+        android:id="@+id/idGuageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="mmHg"
+        app:layout_constraintEnd_toEndOf="@+id/idGuageNumber"
+        app:layout_constraintStart_toStartOf="@+id/idGuageNumber"
+        app:layout_constraintTop_toBottomOf="@+id/idGuageNumber" />
+
+    <!--    <com.cardiomood.android.controls.gauge.SpeedometerGauge-->
+<!--        android:id="@+id/speedometer"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="200dp"-->
+<!--        android:padding="8dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
