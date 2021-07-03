@@ -2,10 +2,14 @@ package com.example.chironsolutions;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -23,7 +27,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "Create Table " + USER_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        String createTableStatement = "CREATE TABLE " + USER_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
 
         db.execSQL(createTableStatement);
     }
@@ -53,4 +57,77 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return true;
         }
     }
+
+    public List<UserDataModel> getAll() {
+
+        List<UserDataModel> returnList = new ArrayList<>();
+
+
+        String queryString = "SELECT * FROM " + USER_TABLE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if(cursor.moveToFirst()){
+
+            do {
+                int recordID = cursor.getInt(0);
+                double PPG = cursor.getDouble(1);
+                double ECG = cursor.getDouble(2);
+                double DBP = cursor.getDouble(3);
+                double SBP = cursor.getDouble(4);
+                long Date = cursor.getLong(5);
+
+                UserDataModel newData = new UserDataModel(recordID, PPG,ECG, DBP, SBP, Date);
+                returnList.add(newData);
+
+            }while (cursor.moveToNext());
+        }
+        else{
+            // fail, empty list
+        }
+
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public UserDataModel getLatest() {
+
+        UserDataModel latestData = new UserDataModel();
+
+        String queryString = "SELECT * FROM " + USER_TABLE + " ORDER BY " + COLUMN_DATE +" DESC LIMIT 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if(cursor.moveToFirst()){
+
+            int recordID = cursor.getInt(0);
+            double PPG = cursor.getDouble(1);
+            double ECG = cursor.getDouble(2);
+            double DBP = cursor.getDouble(3);
+            double SBP = cursor.getDouble(4);
+            long Date = cursor.getLong(5);
+
+            latestData = new UserDataModel(recordID, PPG,ECG, DBP, SBP, Date);
+
+        }
+        else{
+            // fail, empty list
+        }
+
+        cursor.close();
+        db.close();
+        return latestData;
+    }
+
+    public void deleteAll(){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String queryString = "DROP TABLE IF EXISTS " + USER_TABLE;
+        db.execSQL(queryString);
+
+        String createTableStatement = "CREATE TABLE " + USER_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        db.execSQL(createTableStatement);
+    }
+
 }
