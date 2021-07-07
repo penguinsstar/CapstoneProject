@@ -1,116 +1,97 @@
-%% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan & Khalil Ammar
-function Calculate_DBP(ECG, PPG, isCalibrated, b1, b2, sampling_rate)
+%% ORIGINAL CODE BY ABHIJITH BAILUR, modified by Frank Li, Daniel Wan, Akshay Kumar & Khalil Ammar
+% CalibrationMode = 0 : mPTP
+% CalibrationMode = 1 : fPTP
+% Command to run model with pre-calibrated parameters: Calculate_DBP(1, struct('PTT0', 0.1, 'DBP0', 66.4, 'SBP0', 114.8), 1, 1, 0)
+function Calculate_DBP(isCalibrated, userParameters, calibrationMode, debug, PTTdebug)
 
 %% Debug parameters
-T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
-isCalibrated = 1;
-sampling_rate = 100;
-
-
-%% ECG signal
-ECG=normalize(T.('ECG')); % ECG signal
-% y = ECG;
-figure,plot(ECG,'b');
-title('ECG signal');
-xlabel('time');
-ylabel('amplitude');
-hold on
-%% PPG signal
-PPG=normalize(T.('PPG')); % PPG signal
-% z = PPG;
-plot(PPG,'r');
-title('PPG signal');
-xlabel('time');
-ylabel('amplitude');
-
-%% peak detection of ECG
-plot(ECG,'b');
-title('ECG signal');
-xlabel('time');
-ylabel('amplitude');
-hold on
-
-j=1;
-n=length(ECG);
-for i=2:n-1
-    if ECG(i)> ECG(i-1) && ECG(i)>= ECG(i+1) && ECG(i)> 0.45*max(ECG)
-       val(j)= ECG(i);
-       ECG_peaks(j)=i;
-       j=j+1;
-     end
-end
-plot(ECG_peaks,val,'*r');
-title('ECG peak');
-
-%% peak detection of PPG
-[PPG_peaks,~] = peakdet(PPG, 0.5);
-
-plot(PPG_peaks(:,1),PPG_peaks(:,2),'*g');
-title('PPG peak');
-title('ECG & PPG signal');
-legend('ECG signal','PPG signal');
-
-%% split waveforms into single beats
-window_size = floor(mean(diff(ECG_peaks))); % window size defined as the average distance between peaks
-if mod(window_size,2) ~= 0
-    window_size = window_size - 1;
-end
-
-ECG_ensembles = zeros(window_size,length(ECG_peaks)-1);
-PPG_ensembles = zeros(window_size, length(ECG_peaks)-1);
-
-% split ECG waveform around peaks
-for i=2:length(ECG_peaks)
-    l_limit = max(1, ECG_peaks(i) - window_size/2); %ensure minimum index = 1
-    if l_limit == 1
-        u_limit = window_size;
-    else
-        u_limit = min(length(ECG), ECG_peaks(i) + window_size/2 -1); %ensure maximum index = length(ECG)
-        if u_limit == length(ECG)
-            l_limit = length(ECG) - window_size + 1;
-        end
+if(debug)
+    isCalibrated = 1;
+    PTT = [0.11, 0.09, 0.09, 0.11, 0.1];
+    DBP = [65, 68, 67, 66, 66];
+    SBP = [120, 116, 114, 109, 115];
+    SBP0 = userParameters.SBP0;
+    DBP0 = userParameters.DBP0;
+    PTT0 = userParameters.PTT0;
+    gamma = 0.031;
+    if(calibrationMode == 1)
+        EstDBP = [70, 71, 69, 70, 70];
+        RealDBP = [65, 65, 68, 65, 65];
+        alphaPTT = (sum(PTT - mean(PTT))) / (length(PTT)*(sum(abs(PTT - mean(PTT)))));
+        fPTT0 = mean(PTT)*(1-alphaPTT);
+        alphaDBP = (sum(EstDBP - RealDBP)) / (length(EstDBP)*(sum(abs(EstDBP - RealDBP))));
+        fDBP0 = mean(DBP)*(1-alphaDBP);
     end
-    ECG_ensembles(:,i-1) = ECG(l_limit:u_limit);
-    PPG_ensembles(:,i-1) = PPG(l_limit:u_limit);
 end
 
-
-%% Calculate & Plot Ensemble-Averaged Signals
-figure;
-plot(ECG_ensembles);
-title('ECG ensembles');
-figure;
-plot(PPG_ensembles);
-title('PPG ensembles');
-
-% calculate ensemble average for ECG and PPG signals
-ens_avg_ECG = mean(ECG_ensembles, 2);
-ens_avg_PPG = mean(PPG_ensembles, 2);
-[~, PPG_max_idx] = max(ens_avg_PPG);
-[~, ECG_max_idx] = max(ens_avg_ECG);
-ptt = (max(PPG_max_idx) - max(ECG_max_idx))/sampling_rate; 
-
-figure;
-hold on;
-plot(ens_avg_ECG);
-plot(ens_avg_PPG);
-hold off;
-title('ensemble-averaged ECG and PPG signals');
-legend('ECG', 'PPG');
-
-%% calculate parameters
+%% Calibrate if not already done
 if (~isCalibrated)
-    syms b1 b2
-    DBP1 = 71;
-    DBP2 = 75;
-    mean_ptt_1 = mean(ptt(1:5));
-    mean_ptt_2 = mean(ptt(6:11));
-    ptt_eqns = [b1/mean_ptt_1 + b2 == 71, b1/mean_ptt_2 + b2 == 75];
-    ptt_vars = solve(ptt_eqns,[b1 b2]);
-    b1 = ptt_vars.b1;
-    b2 = ptt_vars.b2;
+    c = 1;
+    while c <= 5
+        %%Getting 5 median PTT values from 30s intervals
+        PTT(c) = Calculate_PTT(PTTdebug);
+        disp('PTT:')
+        disp(PTT(c));
+        skip = input('Skip value y = 1 / n = 0 ? \n');
+        if(skip == 1)
+            continue;
+        end
+        %%Prompts user to input values
+        DBP(c) = input('Please input your actual DBP: ');
+        SBP(c) = input('Please input your actual SBP: ');
+        c = c + 1;
+    end
+    %%Average of the 5 ensembled PTTs and cuff based BP (PTT BAR)
+    meanPTT = mean(PTT);
+    meanSBP = mean(SBP);
+    meanDBP = mean(DBP);
+
+    
+    %% Calculating various parameters required for the model (mPTP)
+    SBP0 = meanSBP;
+    DBP0 = meanDBP;
+    PTT0 = meanPTT;
+    
+    %% fPTP calibration
+    if(calibrationMode == 1)
+        %%Calculating Penalty Factor (alpha)
+        alphaPTT = (sum(PTT - meanPTT)) / (length(PTT)*(sum(abs(PTT - meanPTT))));
+        PTT0 = meanPTT*(1-alphaPTT);
+
+        %%Calculating the adjusted DBP initial value
+        % need to collect cuff BP and estimate BP values using mPTP calibration
+        for c = 1:3
+            PTTcurrent = Calculate_PTT(0);
+            %%base values already calculated from the callibration
+            EstDBP(c) = (SBP0 + 2*DBP0)/3 + ((2/gamma)*log(PTT0/PTTcurrent)) - ((SBP0 - DBP0)/3)*((PTT0/PTTcurrent)^2);
+            RealDBP(c) = input('Please input your actual diastolic blood pressure');
+        end
+
+        alphaDBP = (sum(EstDBP - RealDBP)) / (length(EstDBP)*(sum(abs(EstDBP - RealDBP))));
+        DBP0 = meanDBP*(1-alphaDBP);
+    end
+    
+    %% Gamma is preset based on user's age
+    gamma = 0.031;
+
+    
 end
-%% calculate BP and PP
-DBP=(b1/ptt)+b2;
-disp('Your Diastolic Blood Pressure Is: ');
-disp(DBP);
+ 
+%% calculate DBP
+while true
+    PTTcurrent = Calculate_PTT(PTTdebug);
+    disp('PTT: ');
+    disp(PTTcurrent);
+    % BP estimation with mPTP parameters only
+    DBP = (SBP0 + 2*DBP0)/3 + ((2/gamma)*log(PTT0/PTTcurrent)) - ((SBP0 - DBP0)/3)*((PTT0/PTTcurrent)^2);
+    disp('Your Diastolic Blood Pressure Is (mPTP): ');
+    disp(DBP);
+    
+    % BP estimation with fPTP parameters
+    % TODO: remove one of these 2 after testing
+    fDBP = (SBP0 + 2*fDBP0)/3 + ((2/gamma)*log(fPTT0/PTTcurrent)) - ((SBP0 - fDBP0)/3)*((fPTT0/PTTcurrent)^2);
+    disp('Your Diastolic Blood Pressure Is (fPTP): ');
+    disp(fDBP);
+    input('Press any key to make another measurement');
+
+end
