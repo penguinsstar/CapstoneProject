@@ -2,7 +2,7 @@ function [ptt] = Calculate_PTT(debug)
 if(~debug)
     [ECG, PPG] = Get_data();
 end
-    %% Debug parameters
+%% Debug parameters
 T = readtable('sensor-data.xlsx', 'Sheet', 'Sheet3');
 sampling_rate = 100;
 
