@@ -11,11 +11,11 @@
 
 /* Include files */
 #include "Calculate_PTT.h"
-#include "Calculate_DBP_emxutil.h"
+#include "Calculate_DBP_emxutil.c"
 #include "Calculate_DBP_types.h"
-#include "diff.h"
-#include "mean.h"
-#include "minOrMax.h"
+#include "diff.c"
+#include "mean.c"
+#include "minOrMax.c"
 #include <math.h>
 #include <string.h>
 

@@ -13,13 +13,30 @@
 #include "Calculate_DBP.h"
 #include "Calculate_PTT.h"
 #include <math.h>
+#include <stdbool.h>
+#include <jni.h>
 
 /* Function Definitions */
-double Calculate_DBP(double SBP0, double DBP0, double PTT0, double fPTT0,
-                     double fDBP0, const double ECG[1000],
-                     const double PPG[1000], double b_gamma,
-                     boolean_T CalibrationMode)
-{
+JNIEXPORT jdouble JNICALL
+Java_com_example_chironsolutions_MainActivity_00024calculations_calculate_1DBP(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jdouble sbp0,
+                                                                               jdouble dbp0,
+                                                                               jdouble ptt0,
+                                                                               jdouble f_ptt0,
+                                                                               jdouble f_dbp0,
+                                                                               jdoubleArray ecg,
+                                                                               jdoubleArray ppg,
+                                                                               jdouble gamma,
+                                                                               jboolean calibration_mode)
+                                                                               {
+    return Calculate_DBP(sbp0, dbp0, ptt0, f_ptt0, f_dbp0,
+                        ecg, ppg, gamma, calibration_mode);
+}
+
+double
+Calculate_DBP(double SBP0, double DBP0, double PTT0, double fPTT0, double fDBP0, const double *ECG,
+              const double *PPG, double b_gamma, boolean_T CalibrationMode) {
   double DBP;
   double PTTcurrent;
   /*  CalibrationMode = 0 : mPTP */

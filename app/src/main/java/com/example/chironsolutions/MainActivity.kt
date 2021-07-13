@@ -84,7 +84,16 @@ class MainActivity : AppCompatActivity() {
         return allData.getDBP()
     }
 
+        object calculations {
+        external fun calculate_DBP(SBP0: Double, DBP0: Double, PTT0: Double, fPTT0: Double, fDBP0: Double,
+                                   ECG: DoubleArray, PPG: DoubleArray, gamma: Double, CalibrationMode: Boolean): Double
+        external fun calibrate(ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray,
+                               gamma: Boolean, CalibrationMode: Boolean, ): DoubleArray // SBP0, DBP0, PTT0, fPTT0, fDBP0
 
+        init {
+            System.loadLibrary("native-lib")
+        }
+    }
 
 
     fun sum(a: Int, b: Int): Int {

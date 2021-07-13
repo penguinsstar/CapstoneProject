@@ -13,12 +13,37 @@
 #include "Calibrate.h"
 #include "Calculate_PTT.h"
 #include <math.h>
+#include <stdbool.h>
+#include <jni.h>
 
 /* Function Definitions */
+JNIEXPORT jobject JNICALL
+Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv *env, jobject thiz,
+                                                                          jdoubleArray ecg,
+                                                                          jdoubleArray ppg,
+                                                                          jdoubleArray real_dbp,
+                                                                          jdoubleArray real_sbp,
+                                                                          jboolean gamma,
+                                                                          jboolean calibration_mode) {
+    double SBP0;
+    double DBP0;
+    double PTT0;
+    double fPTT0;
+    double fDBP0;
+    Calibrate(ecg, ppg, real_dbp, real_sbp, gamma, calibration_mode, &SBP0, &DBP0, &PTT0, &fPTT0, &fDBP0);
+    double calibrationValues[5];
+    calibrationValues[1] = SBP0;
+    calibrationValues[2] = DBP0;
+    calibrationValues[3] = PTT0;
+    calibrationValues[4] = fPTT0;
+    calibrationValues[5] = fDBP0;
+    return calibrationValues;
+}
+
 void Calibrate(const double ECG[10000], const double PPG[10000],
                const double RealDBP[10], const double RealSBP[5],
-               double b_gamma, boolean_T CalibrationMode, double *SBP0,
-               double *DBP0, double *PTT0, double *fPTT0, double *fDBP0)
+               double b_gamma, boolean_T CalibrationMode,
+               double *SBP0, double *DBP0, double *PTT0, double *fPTT0, double *fDBP0)
 {
   double EstDBP[5];
   double PTTcurrent[5];
