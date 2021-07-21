@@ -69,18 +69,25 @@ class MainActivity : AppCompatActivity() {
         sendBroadcast(Intent("new_data"))
     }
 
-    fun readData(){
+    fun readDataAll(): List<UserDataModel>{
 
         var dataBaseHandler = DatabaseHandler(this@MainActivity)
-        var allData = dataBaseHandler.getAll();
+        var allData = dataBaseHandler.getAll()
+        return allData
     }
 
-    fun readLastestData(): Double {
+    fun readDataLast24Hours() : List<UserDataModel>{
+
+        var dataBaseHandler = DatabaseHandler(this@MainActivity)
+        var allData = dataBaseHandler.getLast24Hours();
+        return allData
+    }
+
+    fun readDataLatest(): UserDataModel {
 
         var dataBaseHandler = DatabaseHandler(this@MainActivity)
         var allData = dataBaseHandler.getLatest()
-
-        return allData.getDBP()
+        return allData
     }
 
     object calculations {

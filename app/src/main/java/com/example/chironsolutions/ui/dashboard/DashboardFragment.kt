@@ -7,10 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.chironsolutions.MainActivity
 import com.example.chironsolutions.databinding.FragmentDashboardBinding
+import com.jjoe64.graphview.DefaultLabelFormatter
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.fragment_dashboard.*
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.sin
 
 
@@ -22,8 +27,6 @@ class DashboardFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    var x : Double = 0.0;  var y : Double = 0.0
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -64,19 +67,47 @@ class DashboardFragment : Fragment() {
 
         var series = LineGraphSeries<DataPoint>()
 
+        //var latestValue = (activity as MainActivity).readLastestData()
+        // string = (activity as MainActivity).getDate(latestValue.getDate())
 
+        var date: Date
+        var y : Double = 0.0
+
+        var startTime: Date
+        var endTime: Date
+
+        var listOfData = (activity as MainActivity).readDataLast24Hours()
+        //List<UserDataModel>
+        for (i in listOfData.indices) {
+            listOfData[i].getDBP()
+            listOfData[i].getDate()
+        }
+
+        startTime = Date(System.currentTimeMillis())
         for (i in 0..49)
         {
-            x += 0.1
+            date = Date(System.currentTimeMillis())
             y = sin(5.0*i) + 80
 
-            series.appendData(DataPoint(x,y), true, 51)
+            series.appendData(DataPoint(date,y), true, 51)
 
         }
+        endTime = Date(System.currentTimeMillis())
+
+        graphView.getGridLabelRenderer().setLabelFormatter(DateAsXAxisLabelFormatter(getActivity(), SimpleDateFormat("hh:mm:ss a")));
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+        graphView.getGridLabelRenderer().setHumanRounding(false)
+
         graphView.getViewport().setYAxisBoundsManual(true)
-        graphView.viewport.setMinY(0.0)
-        graphView.viewport.setMaxY(120.0)
-        graphView.getViewport().setXAxisBoundsManual(false)
+        graphView.getViewport().setMinY(0.0)
+        graphView.getViewport().setMaxY(120.0)
+
+        graphView.getViewport().setMinX(startTime.getTime().toDouble())
+        graphView.getViewport().setMaxX(endTime.getTime().toDouble())
+        graphView.getViewport().setXAxisBoundsManual(true)
+        graphView.getGridLabelRenderer().setLabelsSpace(1)
+        graphView.getGridLabelRenderer().setLabelHorizontalHeight(40)
+
         //graphView.viewport.setScalableY(true)
         series.setTitle("Sample Diastolic BP")
         graphView.addSeries(series)
@@ -90,4 +121,6 @@ class DashboardFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }

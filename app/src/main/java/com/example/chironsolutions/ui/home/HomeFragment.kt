@@ -68,7 +68,7 @@ class HomeFragment : Fragment() {
         val guage = idGauge
         val guageText = idGuageNumber
 
-        var latestValue = (activity as MainActivity).readLastestData()
+        var latestValue = (activity as MainActivity).readDataLatest()
         guage.setValue((latestValue.getDBP()).roundToInt())
         guageText.setText(guage.getValue().toString());
     }
