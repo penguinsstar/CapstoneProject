@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.chironsolutions.MainActivity
 import com.example.chironsolutions.databinding.FragmentHomeBinding
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -70,7 +69,7 @@ class HomeFragment : Fragment() {
         val guageText = idGuageNumber
 
         var latestValue = (activity as MainActivity).readLastestData()
-        guage.setValue(latestValue.roundToInt())
+        guage.setValue((latestValue.getDBP()).roundToInt())
         guageText.setText(guage.getValue().toString());
     }
 
