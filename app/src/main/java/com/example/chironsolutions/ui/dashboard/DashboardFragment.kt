@@ -1,5 +1,9 @@
 package com.example.chironsolutions.ui.dashboard
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +14,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.chironsolutions.MainActivity
 import com.example.chironsolutions.databinding.FragmentDashboardBinding
 import com.jjoe64.graphview.DefaultLabelFormatter
+import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.fragment_dashboard.*
+import kotlinx.android.synthetic.main.fragment_home.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 
@@ -27,6 +34,15 @@ class DashboardFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if ("new_data" == intent.action) {
+                updateValue()
+            }
+        }
+    }
+    val filter = IntentFilter("new_data")
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -44,58 +60,32 @@ class DashboardFragment : Fragment() {
 
         })
 
+        requireActivity().applicationContext.registerReceiver(mReceiver, filter)
+
         return root
 
     }
 
+    var series = LineGraphSeries<DataPoint>()
+    lateinit var graphView : GraphView
 
     override fun onViewCreated(
             view: View,
             savedInstanceState: Bundle?) {
 
-        val graphView = idGraphView
-//        var series = LineGraphSeries(
-//            arrayOf<DataPoint>(
-//                DataPoint(x, y),
-//                DataPoint(x+0.1, y+5),
-//                DataPoint(x+0.2, y+3),
-//                DataPoint(x+0.3, y+2),
-//                DataPoint(x+0.4, y+6)
-//            )
-//        )
-//        graphView.addSeries(series)
 
-        var series = LineGraphSeries<DataPoint>()
-
-        //var latestValue = (activity as MainActivity).readLastestData()
-        // string = (activity as MainActivity).getDate(latestValue.getDate())
-
-        var date: Date
-        var y : Double = 0.0
-
-        var startTime: Date
-        var endTime: Date
+        graphView = idGraphView
 
         var listOfData = (activity as MainActivity).readDataLast24Hours()
-        //List<UserDataModel>
+        var startTime = Date(listOfData[0].getDate())
+        var endTime = Date(listOfData[listOfData.lastIndex].getDate())
         for (i in listOfData.indices) {
-            listOfData[i].getDBP()
-            listOfData[i].getDate()
+
+            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 86400000)
         }
-
-        startTime = Date(System.currentTimeMillis())
-        for (i in 0..49)
-        {
-            date = Date(System.currentTimeMillis())
-            y = sin(5.0*i) + 80
-
-            series.appendData(DataPoint(date,y), true, 51)
-
-        }
-        endTime = Date(System.currentTimeMillis())
 
         graphView.getGridLabelRenderer().setLabelFormatter(DateAsXAxisLabelFormatter(getActivity(), SimpleDateFormat("hh:mm:ss a")));
-        graphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+        //graphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
         graphView.getGridLabelRenderer().setHumanRounding(false)
 
         graphView.getViewport().setYAxisBoundsManual(true)
@@ -105,8 +95,10 @@ class DashboardFragment : Fragment() {
         graphView.getViewport().setMinX(startTime.getTime().toDouble())
         graphView.getViewport().setMaxX(endTime.getTime().toDouble())
         graphView.getViewport().setXAxisBoundsManual(true)
-        graphView.getGridLabelRenderer().setLabelsSpace(1)
-        graphView.getGridLabelRenderer().setLabelHorizontalHeight(40)
+        //graphView.getGridLabelRenderer().setLabelsSpace(1)
+        //graphView.getGridLabelRenderer().setLabelHorizontalHeight(40)
+        graphView.getGridLabelRenderer().setHorizontalLabelsAngle(60)
+
 
         //graphView.viewport.setScalableY(true)
         series.setTitle("Sample Diastolic BP")
@@ -117,9 +109,20 @@ class DashboardFragment : Fragment() {
         graphView.getGridLabelRenderer().setHorizontalAxisTitle("Time");
     }
 
+    fun updateValue(){
+
+        var latestValue = (activity as MainActivity).readDataLatest()
+        series.appendData(DataPoint(Date(latestValue.getDate()),latestValue.getDBP()), true, 86400000)
+        graphView.getViewport().setMaxX(Date(latestValue.getDate()).getTime().toDouble())
+
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        requireActivity().applicationContext.unregisterReceiver(mReceiver)
     }
 
 

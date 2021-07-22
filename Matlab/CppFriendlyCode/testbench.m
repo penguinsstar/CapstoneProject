@@ -25,3 +25,10 @@ gamma = 0.031;
 [SBP0, DBP0, PTT0, fPTT0, fDBP0] = Calibrate(ECGfull, PPGfull, RealDBP, RealSBP, gamma, true)
 
 [DBP] = Calculate_DBP(114.8, 66.4, 0.1, 0.1000, 53.1200, ECG, PPG, gamma, true)
+
+% extra data export
+allData = [ECGfull ECG PPGfull PPG ];
+filename = 'testdata.xlsx';
+writematrix(allData,filename,'Sheet',1,'Range','A1:V1000')
+writematrix(RealDBP.',filename,'Sheet',1,'Range','W1:W10')
+writematrix(RealSBP.',filename,'Sheet',1,'Range','X1:X5')
