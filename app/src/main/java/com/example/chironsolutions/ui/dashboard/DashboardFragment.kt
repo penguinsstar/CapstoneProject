@@ -68,6 +68,7 @@ class DashboardFragment : Fragment() {
 
     var series = LineGraphSeries<DataPoint>()
     lateinit var graphView : GraphView
+    var lastIndex : Int = 0
 
     override fun onViewCreated(
             view: View,
@@ -83,6 +84,7 @@ class DashboardFragment : Fragment() {
 
             series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 86400000)
         }
+        lastIndex = listOfData.size
 
         graphView.getGridLabelRenderer().setLabelFormatter(DateAsXAxisLabelFormatter(getActivity(), SimpleDateFormat("hh:mm:ss a")));
         //graphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -111,10 +113,18 @@ class DashboardFragment : Fragment() {
 
     fun updateValue(){
 
-        var latestValue = (activity as MainActivity).readDataLatest()
-        series.appendData(DataPoint(Date(latestValue.getDate()),latestValue.getDBP()), true, 86400000)
-        graphView.getViewport().setMaxX(Date(latestValue.getDate()).getTime().toDouble())
+//        var latestValue = (activity as MainActivity).readDataLatest()
+//        series.appendData(DataPoint(Date(latestValue.getDate()),latestValue.getDBP()), true, 86400000)
+//        graphView.getViewport().setMaxX(Date(latestValue.getDate()).getTime().toDouble())
 
+        var listOfData = (activity as MainActivity).readDataLast24Hours()
+        var endTime = Date(listOfData[listOfData.lastIndex].getDate())
+        for (i in lastIndex until listOfData.size) {
+
+            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 86400000)
+        }
+        lastIndex = listOfData.size
+        graphView.getViewport().setMaxX(endTime.getTime().toDouble())
 
     }
 

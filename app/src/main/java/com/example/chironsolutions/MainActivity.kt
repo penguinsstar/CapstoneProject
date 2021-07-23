@@ -1,8 +1,11 @@
 package com.example.chironsolutions
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences.Editor
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -11,10 +14,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.chironsolutions.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.util.*
@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
     var column: Int = 0
     var row: Int = 0
     lateinit var myFileSystem :  POIFSFileSystem
-    val scope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +46,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
 
-        scope.launch {
+
+        GlobalScope.launch(Dispatchers.IO) {
 
             //debug set to true
             if (true) {
@@ -60,26 +60,28 @@ class MainActivity : AppCompatActivity() {
                 dataBaseHandler.deleteAll()
                 (this@MainActivity).DataEntry(-1, 0.0, 0.0, 0.0, 0.0, 0)
 
-
                 inputData()
 
             }
         }
+        GlobalScope.launch(Dispatchers.Main) {
 
+            val mainHandler = Handler(Looper.getMainLooper())
 
+            mainHandler.post(object : Runnable {
+                override fun run() {
 
-
-//        DataEntry(-1, 5.2, 7.0, 35.0, 98.0, System.currentTimeMillis())
-//
-//        Handler().postDelayed(Runnable {
-//            DataEntry(-1, 5.2, 7.0, 100.0, 98.0, System.currentTimeMillis())
-//        }, 5000)
-//        Handler().postDelayed(Runnable {
-//            DataEntry(-1, 5.2, 7.0, 80.0, 98.0, System.currentTimeMillis())
-//        }, 10000)
-
+                    sendBroadcast(Intent("new_data"))
+                    mainHandler.postDelayed(this, 1000)
+                }
+            })
+        }
 
     }
+
+
+
+
 
     fun DataEntry(id: Int, PPG: Double, ECG: Double, DBP: Double, SBP: Double,  date: Long) {
 
@@ -95,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         dataBaseHandler.addOne(userData)
 
 
-        sendBroadcast(Intent("new_data"))
+        //sendBroadcast(Intent("new_data"))
     }
 
     fun readDataAll(): List<UserDataModel>{
@@ -154,6 +156,9 @@ class MainActivity : AppCompatActivity() {
             var ecg = readFromExcelFile(myFileSystem, column, row) //ecg
             var ppg = readFromExcelFile(myFileSystem, column + 11, row) //ppg
 
+            //var ecg = 0.0
+            //var ppg = 0.0
+
             DataEntry(-1, ppg, ecg, ((row.toDouble()) % 10) + 80, 0.0, System.currentTimeMillis())
 
             if (row >= 999) {
@@ -168,14 +173,33 @@ class MainActivity : AppCompatActivity() {
             } else {
 
                 row++
+                println(row)
             }
         }
     }
 
+    fun calibrate(){
+
+        var value: Double = 2.0
+
+        val sharedPref = this@MainActivity.getPreferences(Context.MODE_PRIVATE)
+
+
+        val editor = sharedPref.edit()
+        editor.putLong("stringname", java.lang.Double.doubleToRawLongBits(value))
+        editor.apply()
+
+
+
+
+        var output = java.lang.Double.longBitsToDouble(sharedPref.getLong("stringname", 0L))
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
 
-        scope.cancel()
+
     }
 
 
