@@ -23,18 +23,7 @@ void setup() {
   //done
 }
 
-unsigned long  sampleCount = 0;
-unsigned long initTime = millis();
 void loop() {
-  //   if (accel.available()){
-  //     Serial.println(accel.getZ());
-  //     max86150Sensor.getIR();
-  //     max86150Sensor.getECG();
-  //     sampleCount++;
-  //     if (sampleCount == 1000){
-  //       Serial.print(sampleCount); Serial.print("\t"); Serial.println(millis() - initTime);
-  //     }
 
   Serial.print(max86150Sensor.getECG()); Serial.print("\t"); Serial.println(max86150Sensor.getIR());
-  //   }
 }
