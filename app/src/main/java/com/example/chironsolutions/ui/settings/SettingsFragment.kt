@@ -165,29 +165,29 @@ class CalibrateDialogFragment : DialogFragment() {
                             0 -> {
                                 editor.putLong("CalibrateTime1", currentTimeMillis())
                                 editor.putInt("CalibrateTotal", 1)
-                                editor.putInt("RealDBP1", inputDBPSeekBar.getProgress())
-                                editor.putInt("RealSBP1", inputSBPSeekBar.getProgress())
+                                editor.putInt("RealDBP1", inputDBPSeekBar.getProgress()+50)
+                                editor.putInt("RealSBP1", inputSBPSeekBar.getProgress()+80)
                                 editor.apply()
                             }
                             1 -> {
                                 editor.putLong("CalibrateTime2", currentTimeMillis())
                                 editor.putInt("CalibrateTotal", 2)
-                                editor.putInt("RealDBP2", inputDBPSeekBar.getProgress())
-                                editor.putInt("RealSBP2", inputSBPSeekBar.getProgress())
+                                editor.putInt("RealDBP2", inputDBPSeekBar.getProgress()+50)
+                                editor.putInt("RealSBP2", inputSBPSeekBar.getProgress()+80)
                                 editor.apply()
                             }
                             2 -> {
                                 editor.putLong("CalibrateTime3", currentTimeMillis())
                                 editor.putInt("CalibrateTotal", 3)
-                                editor.putInt("RealDBP3", inputDBPSeekBar.getProgress())
-                                editor.putInt("RealSBP3", inputSBPSeekBar.getProgress())
+                                editor.putInt("RealDBP3", inputDBPSeekBar.getProgress()+50)
+                                editor.putInt("RealSBP3", inputSBPSeekBar.getProgress()+80)
                                 editor.apply()
                             }
                             3 -> {
                                 editor.putLong("CalibrateTime4", currentTimeMillis())
                                 editor.putInt("CalibrateTotal", 4)
-                                editor.putInt("RealDBP4", inputDBPSeekBar.getProgress())
-                                editor.putInt("RealSBP4", inputSBPSeekBar.getProgress())
+                                editor.putInt("RealDBP4", inputDBPSeekBar.getProgress()+50)
+                                editor.putInt("RealSBP4", inputSBPSeekBar.getProgress()+80)
                                 editor.apply()
                             }
                             4 -> {
@@ -232,14 +232,14 @@ class CalibrateDialogFragment : DialogFragment() {
                                     sharedPref.getInt("RealDBP2", 0).toDouble(),
                                     sharedPref.getInt("RealDBP3", 0).toDouble(),
                                     sharedPref.getInt("RealDBP4", 0).toDouble(),
-                                    inputDBPSeekBar.getProgress().toDouble(), 0.0, 0.0, 0.0, 0.0, 0.0)
+                                    inputDBPSeekBar.getProgress().toDouble()+50, 0.0, 0.0, 0.0, 0.0, 0.0)
 
                                 var realSBP = doubleArrayOf(
                                     sharedPref.getInt("RealSBP1", 0).toDouble(),
                                     sharedPref.getInt("RealSBP2", 0).toDouble(),
                                     sharedPref.getInt("RealSBP3", 0).toDouble(),
                                     sharedPref.getInt("RealSBP4", 0).toDouble(),
-                                    inputSBPSeekBar.getProgress().toDouble())
+                                    inputSBPSeekBar.getProgress().toDouble()+80)
 
 
                                 (activity as MainActivity).calibrate_wrapper(ecg, ppg, realDBP, realSBP)

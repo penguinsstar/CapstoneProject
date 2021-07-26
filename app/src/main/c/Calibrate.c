@@ -25,11 +25,11 @@ Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv
                                                                           jdoubleArray real_sbp,
                                                                           jdouble gamma,
                                                                           jboolean calibration_mode) {
-    double SBP0;
-    double DBP0;
-    double PTT0;
-    double fPTT0;
-    double fDBP0;
+    double SBP0 = 0;
+    double DBP0 = 0;
+    double PTT0 = 0;
+    double fPTT0 = 0;
+    double fDBP0 = 0;
     Calibrate(ecg, ppg, real_dbp, real_sbp, gamma, calibration_mode, &SBP0, &DBP0, &PTT0, &fPTT0, &fDBP0);
     double calibrationValues[5];
     calibrationValues[1] = SBP0;
@@ -40,7 +40,7 @@ Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv
     return calibrationValues;
 }
 
-void Calibrate(const double ECG[10000], const double PPG[10000],
+void Calibrate(const double *ECG, const double *PPG,
                const double RealDBP[10], const double RealSBP[5],
                double b_gamma, boolean_T CalibrationMode,
                double *SBP0, double *DBP0, double *PTT0, double *fPTT0, double *fDBP0)
@@ -57,8 +57,7 @@ void Calibrate(const double ECG[10000], const double PPG[10000],
   /*  CalibrationMode = 1 : fPTP */
   for (c = 0; c < 5; c++) {
     /* Getting 5 median PTT values from 30s intervals */
-    EstDBP[c] = Calculate_PTT(*(double(*)[1000]) & ECG[1000 * c],
-                              *(double(*)[1000]) & PPG[1000 * c]);
+    EstDBP[c] = Calculate_PTT(ECG,PPG);
   }
   /* Average of the 5 ensembled PTTs and cuff based BP (PTT BAR) */
   *PTT0 =
