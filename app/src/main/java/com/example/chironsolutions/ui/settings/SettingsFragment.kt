@@ -26,6 +26,26 @@ import java.lang.System.currentTimeMillis
 
 lateinit var sharedPref: SharedPreferences
 
+var RealDBP1: Double = 0.0
+var RealDBP2: Double = 0.0
+var RealDBP3: Double = 0.0
+var RealDBP4: Double = 0.0
+var RealDBP5: Double = 0.0
+
+var RealSBP1: Double = 0.0
+var RealSBP2: Double = 0.0
+var RealSBP3: Double = 0.0
+var RealSBP4: Double = 0.0
+var RealSBP5: Double = 0.0
+
+var CalibrateTime1: Long = 0L
+var CalibrateTime2: Long = 0L
+var CalibrateTime3: Long = 0L
+var CalibrateTime4: Long = 0L
+var CalibrateTime5: Long = 0L
+
+var CalibrateTotal: Int = 0
+
 class SettingsFragment : Fragment() {
 
     private lateinit var settingsViewModel: SettingsViewModel
@@ -58,22 +78,7 @@ class SettingsFragment : Fragment() {
         view: View,
         savedInstanceState: Bundle?) {
 
-        sharedPref = (activity as MainActivity).getPreferences(Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putLong("CalibrateTime1", 0L)
-        editor.putLong("CalibrateTime2", 0L)
-        editor.putLong("CalibrateTime3", 0L)
-        editor.putLong("CalibrateTime4", 0L)
-        editor.putInt("RealDBP1", 0)
-        editor.putInt("RealSBP1", 0)
-        editor.putInt("RealDBP2", 0)
-        editor.putInt("RealSBP2", 0)
-        editor.putInt("RealDBP3", 0)
-        editor.putInt("RealSBP3", 0)
-        editor.putInt("RealDBP4", 0)
-        editor.putInt("RealSBP4", 0)
-        editor.putInt("CalibrateTotal", 0)
-        editor.apply()
+        sharedPref = (activity as MainActivity).getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
@@ -85,6 +90,13 @@ class SettingsFragment : Fragment() {
             dataBaseHandler.deleteAll()
             (activity as MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, 0)
             (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
+
+            val editor = sharedPref.edit()
+            editor.putLong("SBP0", 0L)
+            editor.putLong("DBP0", 0L)
+            editor.putLong("PTT0", 0L)
+            editor.putInt("isCalibrated", 0)
+            editor.apply()
         }
 
         btnCalibrate.setOnClickListener { view ->
@@ -160,67 +172,66 @@ class CalibrateDialogFragment : DialogFragment() {
                 .setPositiveButton("ok",
                     DialogInterface.OnClickListener { dialog, id ->
 
-                        val editor = sharedPref.edit()
-                        when (sharedPref.getInt("CalibrateTotal", 0)) {
+
+                        when (CalibrateTotal) {
                             0 -> {
-                                editor.putLong("CalibrateTime1", currentTimeMillis())
-                                editor.putInt("CalibrateTotal", 1)
-                                editor.putInt("RealDBP1", inputDBPSeekBar.getProgress()+50)
-                                editor.putInt("RealSBP1", inputSBPSeekBar.getProgress()+80)
-                                editor.apply()
+                                CalibrateTime1 = currentTimeMillis()
+                                CalibrateTotal = 1
+                                RealDBP1 = (inputDBPSeekBar.getProgress()+50).toDouble()
+                                RealSBP1 = (inputSBPSeekBar.getProgress()+80).toDouble()
                             }
                             1 -> {
-                                editor.putLong("CalibrateTime2", currentTimeMillis())
-                                editor.putInt("CalibrateTotal", 2)
-                                editor.putInt("RealDBP2", inputDBPSeekBar.getProgress()+50)
-                                editor.putInt("RealSBP2", inputSBPSeekBar.getProgress()+80)
-                                editor.apply()
+                                CalibrateTime2 = currentTimeMillis()
+                                CalibrateTotal = 2
+                                RealDBP2 = (inputDBPSeekBar.getProgress()+50).toDouble()
+                                RealSBP2 = (inputSBPSeekBar.getProgress()+80).toDouble()
                             }
                             2 -> {
-                                editor.putLong("CalibrateTime3", currentTimeMillis())
-                                editor.putInt("CalibrateTotal", 3)
-                                editor.putInt("RealDBP3", inputDBPSeekBar.getProgress()+50)
-                                editor.putInt("RealSBP3", inputSBPSeekBar.getProgress()+80)
-                                editor.apply()
+                                CalibrateTime3 = currentTimeMillis()
+                                CalibrateTotal = 3
+                                RealDBP3 = (inputDBPSeekBar.getProgress()+50).toDouble()
+                                RealSBP3 = (inputSBPSeekBar.getProgress()+80).toDouble()
                             }
                             3 -> {
-                                editor.putLong("CalibrateTime4", currentTimeMillis())
-                                editor.putInt("CalibrateTotal", 4)
-                                editor.putInt("RealDBP4", inputDBPSeekBar.getProgress()+50)
-                                editor.putInt("RealSBP4", inputSBPSeekBar.getProgress()+80)
-                                editor.apply()
+                                CalibrateTime4 = currentTimeMillis()
+                                CalibrateTotal = 4
+                                RealDBP4 = (inputDBPSeekBar.getProgress()+50).toDouble()
+                                RealSBP4 = (inputSBPSeekBar.getProgress()+80).toDouble()
                             }
                             4 -> {
+                                CalibrateTime5 = currentTimeMillis()
+                                CalibrateTotal = 0
+                                RealDBP5 = (inputDBPSeekBar.getProgress()+50).toDouble()
+                                RealSBP5 = (inputSBPSeekBar.getProgress()+80).toDouble()
 
-                                var time = currentTimeMillis()
                                 var ecg = DoubleArray(10000)
                                 var ppg = DoubleArray(10000)
 
-                                var listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime1", 0L))
+                                var listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime1)
                                 for (i in listOfData.indices) {
 
                                     ecg[i] = listOfData[i].getECG()
                                     ppg[i] = listOfData[i].getPPG()
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime2", 0L))
+                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime2)
                                 for (i in listOfData.indices) {
 
                                     ecg[i+1000] = listOfData[i].getECG()
                                     ppg[i+1000] = listOfData[i].getPPG()
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime3", 0L))
+                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime3)
                                 for (i in listOfData.indices) {
 
                                     ecg[i+2000] = listOfData[i].getECG()
                                     ppg[i+2000] = listOfData[i].getPPG()
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime4", 0L))
+                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime4)
                                 for (i in listOfData.indices) {
 
                                     ecg[i+3000] = listOfData[i].getECG()
                                     ppg[i+3000] = listOfData[i].getPPG()
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(time)
+                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime5)
                                 for (i in listOfData.indices) {
 
                                     ecg[i+4000] = listOfData[i].getECG()
@@ -228,36 +239,34 @@ class CalibrateDialogFragment : DialogFragment() {
                                 }
 
                                 var realDBP = doubleArrayOf(
-                                    sharedPref.getInt("RealDBP1", 0).toDouble(),
-                                    sharedPref.getInt("RealDBP2", 0).toDouble(),
-                                    sharedPref.getInt("RealDBP3", 0).toDouble(),
-                                    sharedPref.getInt("RealDBP4", 0).toDouble(),
-                                    inputDBPSeekBar.getProgress().toDouble()+50, 0.0, 0.0, 0.0, 0.0, 0.0)
+                                    RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5, 0.0, 0.0, 0.0, 0.0, 0.0)
 
                                 var realSBP = doubleArrayOf(
-                                    sharedPref.getInt("RealSBP1", 0).toDouble(),
-                                    sharedPref.getInt("RealSBP2", 0).toDouble(),
-                                    sharedPref.getInt("RealSBP3", 0).toDouble(),
-                                    sharedPref.getInt("RealSBP4", 0).toDouble(),
-                                    inputSBPSeekBar.getProgress().toDouble()+80)
+                                    RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5)
 
 
                                 (activity as MainActivity).calibrate_wrapper(ecg, ppg, realDBP, realSBP)
 
-                                editor.putLong("CalibrateTime1", 0L)
-                                editor.putLong("CalibrateTime2", 0L)
-                                editor.putLong("CalibrateTime3", 0L)
-                                editor.putLong("CalibrateTime4", 0L)
-                                editor.putInt("RealDBP1", 0)
-                                editor.putInt("RealSBP1", 0)
-                                editor.putInt("RealDBP2", 0)
-                                editor.putInt("RealSBP2", 0)
-                                editor.putInt("RealDBP3", 0)
-                                editor.putInt("RealSBP3", 0)
-                                editor.putInt("RealDBP4", 0)
-                                editor.putInt("RealSBP4", 0)
-                                editor.putInt("CalibrateTotal", 0)
-                                editor.apply()
+
+                                 RealDBP1 = 0.0
+                                 RealDBP2 = 0.0
+                                 RealDBP3 = 0.0
+                                 RealDBP4 = 0.0
+                                 RealDBP5 = 0.0
+
+                                 RealSBP1 = 0.0
+                                 RealSBP2 = 0.0
+                                 RealSBP3 = 0.0
+                                 RealSBP4 = 0.0
+                                 RealSBP5 = 0.0
+
+                                 CalibrateTime1 = 0L
+                                 CalibrateTime2 = 0L
+                                 CalibrateTime3 = 0L
+                                 CalibrateTime4 = 0L
+                                 CalibrateTime5 = 0L
+
+                                 CalibrateTotal = 0
 
                             }
                             else -> { // Note the block

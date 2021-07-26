@@ -12,6 +12,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.chironsolutions.databinding.ActivityMainBinding
+import com.example.chironsolutions.ui.settings.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     var value_SBP0: Double = 0.0
     var value_DBP0: Double = 0.0
     var value_PTT0: Double = 0.0
+    var isCalibrated: Int = 0
     var column: Int = 0
     var row: Int = 0
     var gamma = 0.031
@@ -53,15 +55,21 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        sharedPref = this@MainActivity.getPreferences(Context.MODE_PRIVATE)
+        sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         value_SBP0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L))
         value_DBP0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L))
         value_PTT0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L))
+        isCalibrated = sharedPref.getInt("isCalibrated", 0)
 
         GlobalScope.launch(Dispatchers.IO) {
 
             //debug set to true
             if (true) {
+
+                value_SBP0 = 0.0
+                value_DBP0 = 0.0
+                value_PTT0 = 0.0
+                isCalibrated = 0
 
                 var assetManager = getAssets();
                 var myInput = assetManager.open("testdata.xls");
@@ -69,34 +77,90 @@ class MainActivity : AppCompatActivity() {
 
                 var dataBaseHandler = DatabaseHandler(this@MainActivity)
                 dataBaseHandler.deleteAll()
-                (this@MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
+                //(this@MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
                 (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
 
-                inputData()
 
-                var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
-                var ecg = DoubleArray(1000)
-                var ppg = DoubleArray(1000)
+                inputData()
+                inputData()
+            }
+
+        }
+        GlobalScope.launch(Dispatchers.Default) {
+
+            //debug set to true
+            if (true) {
+
+                Thread.sleep(30000)
+
+                var ecg = DoubleArray(10000)
+                var ppg = DoubleArray(10000)
+
+                var listOfData = readDebugDataLast1000(1000)
                 for (i in listOfData.indices) {
 
                     ecg[i] = listOfData[i].getECG()
                     ppg[i] = listOfData[i].getPPG()
                 }
+                listOfData = readDebugDataLast1000(2000)
+                for (i in listOfData.indices) {
 
-                calculate_DBP_wrapper(ecg, ppg)
+                    ecg[i+1000] = listOfData[i].getECG()
+                    ppg[i+1000] = listOfData[i].getPPG()
+                }
+                listOfData = readDebugDataLast1000(3000)
+                for (i in listOfData.indices) {
 
+                    ecg[i+2000] = listOfData[i].getECG()
+                    ppg[i+2000] = listOfData[i].getPPG()
+                }
+                listOfData = readDebugDataLast1000(4000)
+                for (i in listOfData.indices) {
+
+                    ecg[i+3000] = listOfData[i].getECG()
+                    ppg[i+3000] = listOfData[i].getPPG()
+                }
+                listOfData = readDebugDataLast1000(5000)
+                for (i in listOfData.indices) {
+
+                    ecg[i+4000] = listOfData[i].getECG()
+                    ppg[i+4000] = listOfData[i].getPPG()
+                }
+
+                var realDBP = doubleArrayOf(
+                    64.0, 66.0,  66.0, 67.0, 68.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+                var realSBP = doubleArrayOf(
+                    94.0, 96.0, 96.0, 97.0, 98.0)
+
+                calibrate_wrapper(ecg, ppg, realDBP, realSBP)
 
             }
 
         }
         GlobalScope.launch(Dispatchers.Main) {
 
+            Thread.sleep(10000)
             val mainHandler = Handler(Looper.getMainLooper())
 
             mainHandler.post(object : Runnable {
                 override fun run() {
 
-                    sendBroadcast(Intent("new_data"))
+                    if(isCalibrated == 1) {
+
+                        //var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
+                        var listOfData = this@MainActivity.readDebugDataLast1000(1000)
+                        var ecg = DoubleArray(1000)
+                        var ppg = DoubleArray(1000)
+                        for (i in listOfData.indices) {
+
+                            ecg[i] = listOfData[i].getECG()
+                            ppg[i] = listOfData[i].getPPG()
+                        }
+
+                        calculate_DBP_wrapper(ecg, ppg)
+                        sendBroadcast(Intent("new_data"))
+                    }
                     mainHandler.postDelayed(this, 10000)
                 }
             })
@@ -163,6 +227,13 @@ class MainActivity : AppCompatActivity() {
         return allData
     }
 
+    fun readDebugDataLast1000(id: Int) : List<UserDataModel>{
+
+        var dataBaseHandler = DatabaseHandler(this@MainActivity)
+        var allData = dataBaseHandler.getDebugLast1000(id);
+        return allData
+    }
+
     fun readDataLatest(): UserDataModel {
 
         var dataBaseHandler = DatabaseHandler(this@MainActivity)
@@ -193,7 +264,7 @@ class MainActivity : AppCompatActivity() {
         var ecg: Double
         var ppg: Double
 
-        while(column <= 6) {
+        while(column <= 10) {
 
             ecg = (xlWs.getRow(row).getCell(column)).getNumericCellValue()
             ppg = (xlWs.getRow(row).getCell(column+ 11)).getNumericCellValue()
@@ -231,11 +302,13 @@ class MainActivity : AppCompatActivity() {
         value_SBP0 = value[0]
         value_DBP0 = value[1]
         value_PTT0 = value[2]
+        isCalibrated = 1
 
         val editor = sharedPref.edit()
         editor.putLong("SBP0", java.lang.Double.doubleToRawLongBits(value[0]))
         editor.putLong("DBP0", java.lang.Double.doubleToRawLongBits(value[1]))
         editor.putLong("PTT0", java.lang.Double.doubleToRawLongBits(value[2]))
+        editor.putInt("isCalibrated", 1)
         editor.apply()
 
 
@@ -243,8 +316,8 @@ class MainActivity : AppCompatActivity() {
 
     fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
 
-
-        var latestDBP = calculations.calculate_DBP(value_SBP0, value_DBP0, value_PTT0, 0.0, 0.0, ECG, PPG, gamma, false)
+//debug on
+        var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, 0.0, 0.0, ECG, PPG, gamma, false)
         DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
 
     }

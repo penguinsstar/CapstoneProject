@@ -32,12 +32,16 @@ Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv
     double fDBP0 = 0;
     Calibrate(ecg, ppg, real_dbp, real_sbp, gamma, calibration_mode, &SBP0, &DBP0, &PTT0, &fPTT0, &fDBP0);
     double calibrationValues[5];
-    calibrationValues[1] = SBP0;
-    calibrationValues[2] = DBP0;
-    calibrationValues[3] = PTT0;
-    calibrationValues[4] = fPTT0;
-    calibrationValues[5] = fDBP0;
-    return calibrationValues;
+    calibrationValues[0] = SBP0;
+    calibrationValues[1] = DBP0;
+    calibrationValues[2] = PTT0;
+    calibrationValues[3] = fPTT0;
+    calibrationValues[4] = fDBP0;
+
+    jdoubleArray values = (*env)->NewDoubleArray(env, 5);
+    (*env)->SetDoubleArrayRegion(env, values , 0, 5, calibrationValues);
+
+    return values;
 }
 
 void Calibrate(const double *ECG, const double *PPG,
