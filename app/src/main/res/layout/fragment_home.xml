@@ -37,7 +37,7 @@
         android:id="@+id/idGuageNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="0"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="@+id/idGauge"
         app:layout_constraintEnd_toEndOf="@+id/idGauge"

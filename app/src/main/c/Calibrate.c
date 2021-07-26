@@ -17,13 +17,13 @@
 #include <jni.h>
 
 /* Function Definitions */
-JNIEXPORT jobject JNICALL
+JNIEXPORT jdoubleArray JNICALL
 Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv *env, jobject thiz,
                                                                           jdoubleArray ecg,
                                                                           jdoubleArray ppg,
                                                                           jdoubleArray real_dbp,
                                                                           jdoubleArray real_sbp,
-                                                                          jboolean gamma,
+                                                                          jdouble gamma,
                                                                           jboolean calibration_mode) {
     double SBP0;
     double DBP0;

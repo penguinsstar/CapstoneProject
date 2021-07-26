@@ -2,7 +2,9 @@ package com.example.chironsolutions.ui.settings
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,13 +22,15 @@ import com.example.chironsolutions.MainActivity
 import com.example.chironsolutions.R
 import com.example.chironsolutions.databinding.FragmentSettingsBinding
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.android.synthetic.main.fragment_settings_calibrate_dialog.*
+import java.lang.System.currentTimeMillis
 
+lateinit var sharedPref: SharedPreferences
 
 class SettingsFragment : Fragment() {
 
     private lateinit var settingsViewModel: SettingsViewModel
     private var _binding: FragmentSettingsBinding? = null
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -54,6 +58,23 @@ class SettingsFragment : Fragment() {
         view: View,
         savedInstanceState: Bundle?) {
 
+        sharedPref = (activity as MainActivity).getPreferences(Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putLong("CalibrateTime1", 0L)
+        editor.putLong("CalibrateTime2", 0L)
+        editor.putLong("CalibrateTime3", 0L)
+        editor.putLong("CalibrateTime4", 0L)
+        editor.putInt("RealDBP1", 0)
+        editor.putInt("RealSBP1", 0)
+        editor.putInt("RealDBP2", 0)
+        editor.putInt("RealSBP2", 0)
+        editor.putInt("RealDBP3", 0)
+        editor.putInt("RealSBP3", 0)
+        editor.putInt("RealDBP4", 0)
+        editor.putInt("RealSBP4", 0)
+        editor.putInt("CalibrateTotal", 0)
+        editor.apply()
+
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
 
@@ -62,7 +83,8 @@ class SettingsFragment : Fragment() {
 
             var dataBaseHandler = DatabaseHandler(activity as MainActivity)
             dataBaseHandler.deleteAll()
-            (activity as MainActivity).DataEntry(-1, 0.0, 0.0, 0.0, 0.0, 0)
+            (activity as MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, 0)
+            (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
         }
 
         btnCalibrate.setOnClickListener { view ->
@@ -99,12 +121,10 @@ class CalibrateDialogFragment : DialogFragment() {
 
             val DBPSeekBarListener: OnSeekBarChangeListener = object : OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    //add code here
                     labelDBPValue.setText((seekBar.getProgress()+50).toString())
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
-                    //add code here
                     labelDBPValue.setText((seekBar.getProgress()+50).toString())
                 }
 
@@ -113,18 +133,15 @@ class CalibrateDialogFragment : DialogFragment() {
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    //add code here
-                    labelDBPValue.setText((seekBar.getProgress()+50).toString())
+                    labelDBPValue.setText((progress+50).toString())
                 }
             }
             val SBPSeekBarListener: OnSeekBarChangeListener = object : OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    //add code here
                     labelSBPValue.setText((seekBar.getProgress()+80).toString())
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
-                    //add code here
                     labelSBPValue.setText((seekBar.getProgress()+80).toString())
                 }
 
@@ -133,8 +150,7 @@ class CalibrateDialogFragment : DialogFragment() {
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    //add code here
-                    labelSBPValue.setText((seekBar.getProgress()+80).toString())
+                    labelSBPValue.setText((progress+80).toString())
                 }
             }
             inputDBPSeekBar.setOnSeekBarChangeListener(DBPSeekBarListener)
@@ -143,7 +159,112 @@ class CalibrateDialogFragment : DialogFragment() {
             builder.setMessage("Calibrating")
                 .setPositiveButton("ok",
                     DialogInterface.OnClickListener { dialog, id ->
-                        // FIRE ZE MISSILES!
+
+                        val editor = sharedPref.edit()
+                        when (sharedPref.getInt("CalibrateTotal", 0)) {
+                            0 -> {
+                                editor.putLong("CalibrateTime1", currentTimeMillis())
+                                editor.putInt("CalibrateTotal", 1)
+                                editor.putInt("RealDBP1", inputDBPSeekBar.getProgress())
+                                editor.putInt("RealSBP1", inputSBPSeekBar.getProgress())
+                                editor.apply()
+                            }
+                            1 -> {
+                                editor.putLong("CalibrateTime2", currentTimeMillis())
+                                editor.putInt("CalibrateTotal", 2)
+                                editor.putInt("RealDBP2", inputDBPSeekBar.getProgress())
+                                editor.putInt("RealSBP2", inputSBPSeekBar.getProgress())
+                                editor.apply()
+                            }
+                            2 -> {
+                                editor.putLong("CalibrateTime3", currentTimeMillis())
+                                editor.putInt("CalibrateTotal", 3)
+                                editor.putInt("RealDBP3", inputDBPSeekBar.getProgress())
+                                editor.putInt("RealSBP3", inputSBPSeekBar.getProgress())
+                                editor.apply()
+                            }
+                            3 -> {
+                                editor.putLong("CalibrateTime4", currentTimeMillis())
+                                editor.putInt("CalibrateTotal", 4)
+                                editor.putInt("RealDBP4", inputDBPSeekBar.getProgress())
+                                editor.putInt("RealSBP4", inputSBPSeekBar.getProgress())
+                                editor.apply()
+                            }
+                            4 -> {
+
+                                var time = currentTimeMillis()
+                                var ecg = DoubleArray(10000)
+                                var ppg = DoubleArray(10000)
+
+                                var listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime1", 0L))
+                                for (i in listOfData.indices) {
+
+                                    ecg[i] = listOfData[i].getECG()
+                                    ppg[i] = listOfData[i].getPPG()
+                                }
+                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime2", 0L))
+                                for (i in listOfData.indices) {
+
+                                    ecg[i+1000] = listOfData[i].getECG()
+                                    ppg[i+1000] = listOfData[i].getPPG()
+                                }
+                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime3", 0L))
+                                for (i in listOfData.indices) {
+
+                                    ecg[i+2000] = listOfData[i].getECG()
+                                    ppg[i+2000] = listOfData[i].getPPG()
+                                }
+                                listOfData = (activity as MainActivity).readDataLast1000(sharedPref.getLong("CalibrateTime4", 0L))
+                                for (i in listOfData.indices) {
+
+                                    ecg[i+3000] = listOfData[i].getECG()
+                                    ppg[i+3000] = listOfData[i].getPPG()
+                                }
+                                listOfData = (activity as MainActivity).readDataLast1000(time)
+                                for (i in listOfData.indices) {
+
+                                    ecg[i+4000] = listOfData[i].getECG()
+                                    ppg[i+4000] = listOfData[i].getPPG()
+                                }
+
+                                var realDBP = doubleArrayOf(
+                                    sharedPref.getInt("RealDBP1", 0).toDouble(),
+                                    sharedPref.getInt("RealDBP2", 0).toDouble(),
+                                    sharedPref.getInt("RealDBP3", 0).toDouble(),
+                                    sharedPref.getInt("RealDBP4", 0).toDouble(),
+                                    inputDBPSeekBar.getProgress().toDouble(), 0.0, 0.0, 0.0, 0.0, 0.0)
+
+                                var realSBP = doubleArrayOf(
+                                    sharedPref.getInt("RealSBP1", 0).toDouble(),
+                                    sharedPref.getInt("RealSBP2", 0).toDouble(),
+                                    sharedPref.getInt("RealSBP3", 0).toDouble(),
+                                    sharedPref.getInt("RealSBP4", 0).toDouble(),
+                                    inputSBPSeekBar.getProgress().toDouble())
+
+
+                                (activity as MainActivity).calibrate_wrapper(ecg, ppg, realDBP, realSBP)
+
+                                editor.putLong("CalibrateTime1", 0L)
+                                editor.putLong("CalibrateTime2", 0L)
+                                editor.putLong("CalibrateTime3", 0L)
+                                editor.putLong("CalibrateTime4", 0L)
+                                editor.putInt("RealDBP1", 0)
+                                editor.putInt("RealSBP1", 0)
+                                editor.putInt("RealDBP2", 0)
+                                editor.putInt("RealSBP2", 0)
+                                editor.putInt("RealDBP3", 0)
+                                editor.putInt("RealSBP3", 0)
+                                editor.putInt("RealDBP4", 0)
+                                editor.putInt("RealSBP4", 0)
+                                editor.putInt("CalibrateTotal", 0)
+                                editor.apply()
+
+                            }
+                            else -> { // Note the block
+                                println("Calibration error")
+                            }
+                        }
+
                     })
                 .setNegativeButton("cancel",
                     DialogInterface.OnClickListener { dialog, id ->
@@ -157,16 +278,7 @@ class CalibrateDialogFragment : DialogFragment() {
 
     }
 
-//    override fun onViewCreated(
-//        view: View,
-//        savedInstanceState: Bundle?){
-//
-//    }
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//
-//
-//    }
+
 
 
 }

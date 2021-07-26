@@ -19,8 +19,8 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              #native-lib.c)
              Calculate_DBP.c
-            Calibrate.c
-            Calculate_PTT.c)
+             Calibrate.c
+             Calculate_PTT.c)
 
 # Specifies a path to native header files.
 include_directories(src/main/cpp/)

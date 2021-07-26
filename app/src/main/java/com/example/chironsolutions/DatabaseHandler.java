@@ -14,12 +14,13 @@ import java.util.List;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
 
-    public static final String USER_TABLE = "User_Table";
+    public static final String RAW_DATA_TABLE = "Raw_Data_Table";
     public static final String COLUMN_PPG = "PPG";
     public static final String COLUMN_ECG = "ECG";
     public static final String COLUMN_DBP = "DBP";
     public static final String COLUMN_SBP = "SBP";
     public static final String COLUMN_DATE = "date";
+    public static final String COMPUTED_DATA_TABLE = "Computed_Data_Table";
 
     public DatabaseHandler(@Nullable Context context) {
         super(context, "UserDB", null, 1);
@@ -27,8 +28,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE " + USER_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        String createTableStatement = "CREATE TABLE " + RAW_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        db.execSQL(createTableStatement);
 
+        createTableStatement = "CREATE TABLE " + COMPUTED_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
         db.execSQL(createTableStatement);
     }
 
@@ -37,7 +40,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-    public boolean addOne(UserDataModel userDataModel){
+    public boolean addOneRaw(UserDataModel userDataModel){
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -48,7 +51,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cv.put(COLUMN_SBP, userDataModel.getSBP());
         cv.put(COLUMN_DATE, userDataModel.getDate());
 
-        long insert = db.insert(USER_TABLE, null, cv);
+        long insert = db.insert(RAW_DATA_TABLE, null, cv);
+
+        if(insert == -1){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    public boolean addOneComputed(UserDataModel userDataModel){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_PPG, userDataModel.getPPG());
+        cv.put(COLUMN_ECG, userDataModel.getECG());
+        cv.put(COLUMN_DBP, userDataModel.getDBP());
+        cv.put(COLUMN_SBP, userDataModel.getSBP());
+        cv.put(COLUMN_DATE, userDataModel.getDate());
+
+        long insert = db.insert(COMPUTED_DATA_TABLE, null, cv);
 
         if(insert == -1){
             return false;
@@ -63,7 +87,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<UserDataModel> returnList = new ArrayList<>();
 
 
-        String queryString = "SELECT * FROM " + USER_TABLE;
+        String queryString = "SELECT * FROM " + COMPUTED_DATA_TABLE;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -96,7 +120,40 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<UserDataModel> returnList = new ArrayList<>();
 
 
-        String queryString = "SELECT * FROM " + USER_TABLE + " Where " + COLUMN_DATE + " > ((SELECT " + COLUMN_DATE  + " FROM " + USER_TABLE + " ORDER BY " + COLUMN_DATE + " DESC LIMIT 1) - 86400000) ORDER BY " + COLUMN_DATE + " ASC";
+        String queryString = "SELECT * FROM " + COMPUTED_DATA_TABLE + " Where " + COLUMN_DATE + " > ((SELECT " + COLUMN_DATE  + " FROM " + RAW_DATA_TABLE + " ORDER BY " + COLUMN_DATE + " DESC LIMIT 1) - 86400000) ORDER BY " + COLUMN_DATE + " ASC";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if(cursor.moveToFirst()){
+
+            do {
+                int recordID = cursor.getInt(0);
+                double PPG = cursor.getDouble(1);
+                double ECG = cursor.getDouble(2);
+                double DBP = cursor.getDouble(3);
+                double SBP = cursor.getDouble(4);
+                long Date = cursor.getLong(5);
+
+                UserDataModel newData = new UserDataModel(recordID, PPG,ECG, DBP, SBP, Date);
+                returnList.add(newData);
+
+            }while (cursor.moveToNext());
+        }
+        else{
+            // fail, empty list
+        }
+
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public List<UserDataModel> getLast1000(long date) {
+
+        List<UserDataModel> returnList = new ArrayList<>();
+
+        String queryString = "SELECT * FROM " + RAW_DATA_TABLE + " Where " + COLUMN_DATE + " <= " + date + " ORDER BY " + COLUMN_DATE + " ASC LIMIT 1000";
+
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -128,7 +185,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         UserDataModel latestData = new UserDataModel();
 
-        String queryString = "SELECT * FROM " + USER_TABLE + " ORDER BY " + COLUMN_DATE +" DESC LIMIT 1";
+        String queryString = "SELECT * FROM " + COMPUTED_DATA_TABLE + " ORDER BY " + COLUMN_DATE +" DESC LIMIT 1";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -156,10 +213,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void deleteAll(){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        String queryString = "DROP TABLE IF EXISTS " + USER_TABLE;
+        String queryString = "DROP TABLE IF EXISTS " + RAW_DATA_TABLE;
+        db.execSQL(queryString);
+        queryString = "DROP TABLE IF EXISTS " + COMPUTED_DATA_TABLE;
         db.execSQL(queryString);
 
-        String createTableStatement = "CREATE TABLE " + USER_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        String createTableStatement = "CREATE TABLE " + RAW_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
+        db.execSQL(createTableStatement);
+        createTableStatement = "CREATE TABLE " + COMPUTED_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
         db.execSQL(createTableStatement);
     }
 
