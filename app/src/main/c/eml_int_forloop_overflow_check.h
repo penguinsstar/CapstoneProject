@@ -3,14 +3,14 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * Calibrate.h
+ * eml_int_forloop_overflow_check.h
  *
- * Code generation for function 'Calibrate'
+ * Code generation for function 'eml_int_forloop_overflow_check'
  *
  */
 
-#ifndef CALIBRATE_H
-#define CALIBRATE_H
+#ifndef EML_INT_FORLOOP_OVERFLOW_CHECK_H
+#define EML_INT_FORLOOP_OVERFLOW_CHECK_H
 
 /* Include files */
 #include "rtwtypes.h"
@@ -22,13 +22,11 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calibrate(const double ECG[5000], const double PPG[5000],
-                      const double RealDBP[5], const double RealSBP[5],
-                      double *SBP0, double *DBP0, double *PTT0);
+void check_forloop_overflow_error(void);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-/* End of code generation (Calibrate.h) */
+/* End of code generation (eml_int_forloop_overflow_check.h) */

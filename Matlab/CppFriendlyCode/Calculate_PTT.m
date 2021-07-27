@@ -20,7 +20,7 @@ if mod(window_size,2) ~= 0
     window_size = window_size - 1;
 end
 
-ECG_ensembles = zeros(window_size,length(ECG_peaks)-1);
+ECG_ensembles = zeros(window_size, length(ECG_peaks)-1);
 PPG_ensembles = zeros(window_size, length(ECG_peaks)-1);
 
 % split ECG waveform around peaks
@@ -29,7 +29,7 @@ for i=2:length(ECG_peaks)
     if l_limit == 1
         u_limit = window_size;
     else
-        u_limit = min(length(ECG), ECG_peaks(i) + window_size/2 -1); %ensure maximum index = length(ECG)
+        u_limit = min(length(ECG), ECG_peaks(i) + window_size/2 - 1); %ensure maximum index = length(ECG)
         if u_limit == length(ECG)
             l_limit = length(ECG) - window_size + 1;
         end

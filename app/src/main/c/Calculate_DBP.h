@@ -22,10 +22,9 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern double Calculate_DBP(double SBP0, double DBP0, double PTT0, double fPTT0,
-                            double fDBP0, const double ECG[1000],
-                            const double PPG[1000], double b_gamma,
-                            boolean_T CalibrationMode);
+extern double Calculate_DBP(double SBP0, double DBP0, double PTT0,
+                            const double ECG[1000], const double PPG[1000],
+                            double b_gamma);
 
 #ifdef __cplusplus
 }

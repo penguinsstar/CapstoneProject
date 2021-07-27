@@ -93,8 +93,8 @@ class MainActivity : AppCompatActivity() {
 
                 Thread.sleep(30000)
 
-                var ecg = DoubleArray(10000)
-                var ppg = DoubleArray(10000)
+                var ecg = DoubleArray(5000)
+                var ppg = DoubleArray(5000)
 
                 var listOfData = readDebugDataLast1000(1000)
                 for (i in listOfData.indices) {
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 var realDBP = doubleArrayOf(
-                    64.0, 66.0,  66.0, 67.0, 68.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+                    64.0, 66.0,  66.0, 67.0, 68.0)
 
                 var realSBP = doubleArrayOf(
                     94.0, 96.0, 96.0, 97.0, 98.0)
@@ -242,12 +242,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     object calculations {
-        external fun calculate_DBP(SBP0: Double, DBP0: Double, PTT0: Double, fPTT0: Double, fDBP0: Double,
-                                   ECG: DoubleArray, PPG: DoubleArray, gamma: Double, CalibrationMode: Boolean): Double
+        external fun calculate_DBP(SBP0: Double, DBP0: Double, PTT0: Double,
+                                   ECG: DoubleArray, PPG: DoubleArray, gamma: Double): Double
         external fun calibrate(
-            ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray,
-            gamma: Double, CalibrationMode: Boolean,
-        ): DoubleArray // SBP0, DBP0, PTT0, fPTT0, fDBP0
+            ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray): DoubleArray // SBP0, DBP0, PTT0, fPTT0, fDBP0
 
         init {
             System.loadLibrary("native-lib")
@@ -297,7 +295,7 @@ class MainActivity : AppCompatActivity() {
     fun calibrate_wrapper(ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray){
 
 
-        var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP, gamma, false) // SBP0, DBP0, PTT0, fPTT0, fDBP0
+        var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
 
         value_SBP0 = value[0]
         value_DBP0 = value[1]
@@ -317,7 +315,7 @@ class MainActivity : AppCompatActivity() {
     fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
 
 //debug on
-        var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, 0.0, 0.0, ECG, PPG, gamma, false)
+        var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
         DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
 
     }

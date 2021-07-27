@@ -204,8 +204,8 @@ class CalibrateDialogFragment : DialogFragment() {
                                 RealDBP5 = (inputDBPSeekBar.getProgress()+50).toDouble()
                                 RealSBP5 = (inputSBPSeekBar.getProgress()+80).toDouble()
 
-                                var ecg = DoubleArray(10000)
-                                var ppg = DoubleArray(10000)
+                                var ecg = DoubleArray(5000)
+                                var ppg = DoubleArray(5000)
 
                                 var listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime1)
                                 for (i in listOfData.indices) {
@@ -239,7 +239,7 @@ class CalibrateDialogFragment : DialogFragment() {
                                 }
 
                                 var realDBP = doubleArrayOf(
-                                    RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5, 0.0, 0.0, 0.0, 0.0, 0.0)
+                                    RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5)
 
                                 var realSBP = doubleArrayOf(
                                     RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5)
