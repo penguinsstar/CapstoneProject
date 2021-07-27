@@ -86,25 +86,16 @@ class SettingsFragment : Fragment() {
         // set on-click listener
         btnClearUserData.setOnClickListener { view ->
 
-            var dataBaseHandler = DatabaseHandler(activity as MainActivity)
-            dataBaseHandler.deleteAll()
-            (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
-
-            val editor = sharedPref.edit()
-            editor.putLong("SBP0", 0L)
-            editor.putLong("DBP0", 0L)
-            editor.putLong("PTT0", 0L)
-            editor.putInt("isCalibrated", 0)
-            editor.apply()
+            val fm: FragmentManager = requireActivity().getSupportFragmentManager()
+            val clearDataDialogFragment = ClearDataDialogFragment()
+            clearDataDialogFragment.show(fm, "clear_data_dialog")
         }
 
         btnCalibrate.setOnClickListener { view ->
 
-
             val fm: FragmentManager = requireActivity().getSupportFragmentManager()
             val calibrateDialogFragment = CalibrateDialogFragment()
             calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
-
         }
     }
 
@@ -129,6 +120,8 @@ class CalibrateDialogFragment : DialogFragment() {
             val inputSBPSeekBar = dialogView.findViewById<SeekBar>(R.id.idSBPSeekBar)
             val labelDBPValue = dialogView.findViewById<TextView>(R.id.idDBPValue)
             val labelSBPValue = dialogView.findViewById<TextView>(R.id.idSBPValue)
+            val labelTitle = dialogView.findViewById<TextView>(R.id.idTitleLabel)
+            labelTitle.setText(getString(R.string.calibration_title, CalibrateTotal+1))
 
             val DBPSeekBarListener: OnSeekBarChangeListener = object : OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -167,10 +160,9 @@ class CalibrateDialogFragment : DialogFragment() {
             inputDBPSeekBar.setOnSeekBarChangeListener(DBPSeekBarListener)
             inputSBPSeekBar.setOnSeekBarChangeListener(SBPSeekBarListener)
 
-            builder.setMessage("Calibrating")
+            builder.setMessage("")
                 .setPositiveButton("ok",
                     DialogInterface.OnClickListener { dialog, id ->
-
 
                         when (CalibrateTotal) {
                             0 -> {
@@ -178,24 +170,36 @@ class CalibrateDialogFragment : DialogFragment() {
                                 CalibrateTotal = 1
                                 RealDBP1 = (inputDBPSeekBar.getProgress()+50).toDouble()
                                 RealSBP1 = (inputSBPSeekBar.getProgress()+80).toDouble()
+                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
+                                val calibrateDialogFragment = CalibrateDialogFragment()
+                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                             }
                             1 -> {
                                 CalibrateTime2 = currentTimeMillis()
                                 CalibrateTotal = 2
                                 RealDBP2 = (inputDBPSeekBar.getProgress()+50).toDouble()
                                 RealSBP2 = (inputSBPSeekBar.getProgress()+80).toDouble()
+                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
+                                val calibrateDialogFragment = CalibrateDialogFragment()
+                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                             }
                             2 -> {
                                 CalibrateTime3 = currentTimeMillis()
                                 CalibrateTotal = 3
                                 RealDBP3 = (inputDBPSeekBar.getProgress()+50).toDouble()
                                 RealSBP3 = (inputSBPSeekBar.getProgress()+80).toDouble()
+                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
+                                val calibrateDialogFragment = CalibrateDialogFragment()
+                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                             }
                             3 -> {
                                 CalibrateTime4 = currentTimeMillis()
                                 CalibrateTotal = 4
                                 RealDBP4 = (inputDBPSeekBar.getProgress()+50).toDouble()
                                 RealSBP4 = (inputSBPSeekBar.getProgress()+80).toDouble()
+                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
+                                val calibrateDialogFragment = CalibrateDialogFragment()
+                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                             }
                             4 -> {
                                 CalibrateTime5 = currentTimeMillis()
@@ -273,6 +277,8 @@ class CalibrateDialogFragment : DialogFragment() {
                             }
                         }
 
+
+
                     })
                 .setNegativeButton("cancel",
                     DialogInterface.OnClickListener { dialog, id ->
@@ -282,11 +288,61 @@ class CalibrateDialogFragment : DialogFragment() {
             builder.create()
 
 
+
+
         } ?: throw IllegalStateException("Activity cannot be null")
 
     }
 
+}
 
+class ClearDataDialogFragment : DialogFragment() {
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            // Use the Builder class for convenient dialog construction
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage("Are you sure you want to clear all User Data?")
+                .setPositiveButton("ok",
+                    DialogInterface.OnClickListener { dialog, id ->
 
+                        var dataBaseHandler = DatabaseHandler(activity as MainActivity)
+                        dataBaseHandler.deleteAll()
+                        (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
+
+                        val editor = sharedPref.edit()
+                        editor.putLong("SBP0", 0L)
+                        editor.putLong("DBP0", 0L)
+                        editor.putLong("PTT0", 0L)
+                        editor.putInt("isCalibrated", 0)
+                        editor.apply()
+
+                        RealDBP1 = 0.0
+                        RealDBP2 = 0.0
+                        RealDBP3 = 0.0
+                        RealDBP4 = 0.0
+                        RealDBP5 = 0.0
+
+                        RealSBP1 = 0.0
+                        RealSBP2 = 0.0
+                        RealSBP3 = 0.0
+                        RealSBP4 = 0.0
+                        RealSBP5 = 0.0
+
+                        CalibrateTime1 = 0L
+                        CalibrateTime2 = 0L
+                        CalibrateTime3 = 0L
+                        CalibrateTime4 = 0L
+                        CalibrateTime5 = 0L
+
+                        CalibrateTotal = 0
+                    })
+                .setNegativeButton("cancel",
+                    DialogInterface.OnClickListener { dialog, id ->
+                        // User cancelled the dialog
+                    })
+            // Create the AlertDialog object and return it
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
 }

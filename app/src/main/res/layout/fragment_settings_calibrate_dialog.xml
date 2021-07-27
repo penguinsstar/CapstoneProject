@@ -9,10 +9,10 @@
     <SeekBar
         android:id="@+id/idSBPSeekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="178dp"
-        android:layout_height="155dp"
+        android:layout_width="325dp"
+        android:layout_height="140dp"
         android:layout_marginTop="5dp"
-        android:max="100"
+        android:max="60"
         android:progress="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,10 +21,10 @@
     <SeekBar
         android:id="@+id/idDBPSeekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="178dp"
-        android:layout_height="155dp"
+        android:layout_width="325dp"
+        android:layout_height="140dp"
         android:layout_marginTop="5dp"
-        android:max="80"
+        android:max="60"
         android:progress="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -36,6 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter your DBP"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -48,6 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter your SBP"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,6 +62,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="value"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idDBPLabel" />
@@ -70,7 +73,30 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="value"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idSBPLabel" />
+
+    <TextView
+        android:id="@+id/idTitleLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calibrating"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toTopOf="@+id/idDBPLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.32" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please wait 30 seconds before each calibration step"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idSBPSeekBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>
