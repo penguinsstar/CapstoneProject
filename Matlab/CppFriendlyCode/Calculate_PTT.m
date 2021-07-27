@@ -43,6 +43,6 @@ ens_avg_ECG = mean(ECG_ensembles, 2);
 ens_avg_PPG = mean(PPG_ensembles, 2);
 [~, PPG_max_idx] = max(ens_avg_PPG);
 [~, ECG_max_idx] = max(ens_avg_ECG);
-ptt = (max(PPG_max_idx) - max(ECG_max_idx))/sampling_rate; 
+ptt = (PPG_max_idx - ECG_max_idx)/sampling_rate; 
 
 end

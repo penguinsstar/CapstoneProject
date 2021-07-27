@@ -26,7 +26,13 @@ Java_com_example_chironsolutions_MainActivity_00024calculations_calibrate(JNIEnv
   double SBP0 = 0;
   double DBP0 = 0;
   double PTT0 = 0;
-  Calibrate(ecg, ppg, real_dbp, real_sbp, &SBP0, &DBP0, &PTT0);
+  double* ecgPointer  = (*env)->GetDoubleArrayElements(env, ecg, 0);
+  double* ppgPointer  = (*env)->GetDoubleArrayElements(env, ppg, 0);
+  double* real_dbpPointer  = (*env)->GetDoubleArrayElements(env, real_dbp, 0);
+  double* real_sbpPointer  = (*env)->GetDoubleArrayElements(env, real_sbp, 0);
+
+  Calibrate(ecgPointer, ppgPointer, real_dbpPointer, real_sbpPointer, &SBP0, &DBP0, &PTT0);
+
   double calibrationValues[3];
   calibrationValues[0] = SBP0;
   calibrationValues[1] = DBP0;

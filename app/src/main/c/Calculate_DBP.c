@@ -27,7 +27,9 @@ Java_com_example_chironsolutions_MainActivity_00024calculations_calculate_1DBP(J
                                                                                jdoubleArray ppg,
                                                                                jdouble gamma)
 {
-  return Calculate_DBP(sbp0, dbp0, ptt0, ecg, ppg, gamma);
+    double* ecgPointer  = (*env)->GetDoubleArrayElements(env, ecg, 0);
+    double* ppgPointer  = (*env)->GetDoubleArrayElements(env, ppg, 0);
+  return Calculate_DBP(sbp0, dbp0, ptt0, ecgPointer, ppgPointer, gamma);
 }
 
 double Calculate_DBP(double SBP0, double DBP0, double PTT0,
