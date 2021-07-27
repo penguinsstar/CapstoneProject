@@ -26,10 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     lateinit var sharedPref: SharedPreferences
-    var value_SBP0: Double = 0.0
-    var value_DBP0: Double = 0.0
-    var value_PTT0: Double = 0.0
-    var isCalibrated: Int = 0
     var column: Int = 0
     var row: Int = 0
     var gamma = 0.031
@@ -56,20 +52,18 @@ class MainActivity : AppCompatActivity() {
 
 
         sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        value_SBP0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L))
-        value_DBP0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L))
-        value_PTT0 = java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L))
-        isCalibrated = sharedPref.getInt("isCalibrated", 0)
 
         GlobalScope.launch(Dispatchers.IO) {
 
             //debug set to true
             if (true) {
 
-                value_SBP0 = 0.0
-                value_DBP0 = 0.0
-                value_PTT0 = 0.0
-                isCalibrated = 0
+                val editor = sharedPref.edit()
+                editor.putLong("SBP0", 0L)
+                editor.putLong("DBP0", 0L)
+                editor.putLong("PTT0", 0L)
+                editor.putInt("isCalibrated", 0)
+                editor.apply()
 
                 var assetManager = getAssets();
                 var myInput = assetManager.open("testdata.xls");
@@ -77,7 +71,6 @@ class MainActivity : AppCompatActivity() {
 
                 var dataBaseHandler = DatabaseHandler(this@MainActivity)
                 dataBaseHandler.deleteAll()
-                //(this@MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
                 (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
 
 
@@ -86,6 +79,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        /*
         GlobalScope.launch(Dispatchers.Default) {
 
             //debug set to true
@@ -138,6 +132,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        */
+
         GlobalScope.launch(Dispatchers.Main) {
 
             Thread.sleep(10000)
@@ -146,10 +142,10 @@ class MainActivity : AppCompatActivity() {
             mainHandler.post(object : Runnable {
                 override fun run() {
 
-                    if(isCalibrated == 1) {
+                    if(sharedPref.getInt("isCalibrated", 0) == 1) {
 
-                        //var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
-                        var listOfData = this@MainActivity.readDebugDataLast1000(1000)
+                        var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
+                        //var listOfData = this@MainActivity.readDebugDataLast1000(1000)
                         var ecg = DoubleArray(1000)
                         var ppg = DoubleArray(1000)
                         for (i in listOfData.indices) {
@@ -286,7 +282,7 @@ class MainActivity : AppCompatActivity() {
             } else {
 
                 row++
-                println(row)
+                //println(row)
             }
         }
     }
@@ -296,11 +292,6 @@ class MainActivity : AppCompatActivity() {
 
 
         var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
-
-        value_SBP0 = value[0]
-        value_DBP0 = value[1]
-        value_PTT0 = value[2]
-        isCalibrated = 1
 
         val editor = sharedPref.edit()
         editor.putLong("SBP0", java.lang.Double.doubleToRawLongBits(value[0]))
@@ -314,8 +305,10 @@ class MainActivity : AppCompatActivity() {
 
     fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
 
-//debug on
-        var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
+//debug off
+        //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
+        var latestDBP = calculations.calculate_DBP(java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
+            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)), java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)), ECG, PPG, gamma)
         DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
 
     }

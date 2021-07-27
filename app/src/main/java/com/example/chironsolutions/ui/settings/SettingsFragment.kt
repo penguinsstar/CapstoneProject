@@ -88,7 +88,6 @@ class SettingsFragment : Fragment() {
 
             var dataBaseHandler = DatabaseHandler(activity as MainActivity)
             dataBaseHandler.deleteAll()
-            (activity as MainActivity).DataEntryRaw(-1, 0.0, 0.0, 0.0, 0.0, 0)
             (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
 
             val editor = sharedPref.edit()
