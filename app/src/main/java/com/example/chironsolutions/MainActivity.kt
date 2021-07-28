@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun scanLeDevice( filters: List<ScanFilter>, settings: ScanSettings) {
+    fun scanLeDevice( filters: List<ScanFilter>, settings: ScanSettings) {
 //        if (!scanning) { // Stops scanning after a pre-defined scan period.
 //            handler.postDelayed({
 //                scanning = false

@@ -2,16 +2,20 @@ package com.example.chironsolutions.ui.settings
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.ParcelUuid
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -23,6 +27,7 @@ import com.example.chironsolutions.R
 import com.example.chironsolutions.databinding.FragmentSettingsBinding
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.lang.System.currentTimeMillis
+import java.util.*
 
 lateinit var sharedPref: SharedPreferences
 
@@ -83,6 +88,7 @@ class SettingsFragment : Fragment() {
 
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
+        val btnSeekBLEDevice = idBtnSeekBLEDevice
 
         // set on-click listener
         btnClearUserData.setOnClickListener { view ->
@@ -97,6 +103,21 @@ class SettingsFragment : Fragment() {
             val fm: FragmentManager = requireActivity().getSupportFragmentManager()
             val calibrateDialogFragment = CalibrateDialogFragment()
             calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
+        }
+
+        btnSeekBLEDevice.setOnClickListener { view ->
+
+            if (sharedPref.getInt("isBluetoothOn", 0) == 0){
+
+                val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))).build()
+                val filters = listOf(filter)
+                val settings = ScanSettings.Builder().build()
+                (activity as MainActivity).scanLeDevice( filters, settings)
+                Toast.makeText(requireContext(), R.string.connect_to_bluetooth, Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(requireContext(), R.string.bluetooth_already_on, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
