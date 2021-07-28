@@ -50,6 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:text="Blood Pressure"
+        android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/idGauge"
         app:layout_constraintEnd_toEndOf="@+id/idGauge"
@@ -60,6 +61,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="mmHg"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/idGuageNumber"
         app:layout_constraintStart_toStartOf="@+id/idGuageNumber"
         app:layout_constraintTop_toBottomOf="@+id/idGuageNumber" />
