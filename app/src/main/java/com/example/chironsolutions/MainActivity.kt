@@ -9,6 +9,7 @@ import android.bluetooth.le.ScanSettings
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
+import android.system.Os.close
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -65,6 +66,9 @@ class MainActivity : AppCompatActivity() {
 
 
         sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putInt("isBluetoothOn", 0)
+        editor.apply()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(baseContext,
@@ -184,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             mainHandler.post(object : Runnable {
                 override fun run() {
 
-                    if(sharedPref.getInt("isCalibrated", 0) == 1) {
+                    if(sharedPref.getInt("isCalibrated", 0) == 1 && sharedPref.getInt("isBluetoothOn", 0) == 1) {
 
                         var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
                         //var listOfData = this@MainActivity.readDebugDataLast1000(1000)
@@ -260,6 +264,10 @@ class MainActivity : AppCompatActivity() {
                 //gatt?.requestMtu(256)
                 gatt?.discoverServices()
             }
+            else if(newState == BluetoothGatt.STATE_DISCONNECTED){
+                gatt?.close()
+                gatt?.disconnect()
+            }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
@@ -268,6 +276,9 @@ class MainActivity : AppCompatActivity() {
                 ?.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"))
             gatt?.setCharacteristicNotification(characteristic, true)
 
+            val editor = sharedPref.edit()
+            editor.putInt("isBluetoothOn", 1)
+            editor.apply()
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?

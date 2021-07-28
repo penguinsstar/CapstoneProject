@@ -71,14 +71,15 @@ class SettingsFragment : Fragment() {
         settingsViewModel.text.observe(viewLifecycleOwner, Observer {
             //textView.text = it
         })
+
+        sharedPref = (activity as MainActivity).getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
         return root
     }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?) {
-
-        sharedPref = (activity as MainActivity).getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
@@ -121,7 +122,14 @@ class CalibrateDialogFragment : DialogFragment() {
             val labelDBPValue = dialogView.findViewById<TextView>(R.id.idDBPValue)
             val labelSBPValue = dialogView.findViewById<TextView>(R.id.idSBPValue)
             val labelTitle = dialogView.findViewById<TextView>(R.id.idTitleLabel)
-            labelTitle.setText(getString(R.string.calibration_title, CalibrateTotal+1))
+
+            if (sharedPref.getInt("isBluetoothOn", 0) == 0){
+
+                labelTitle.setText(getString(R.string.bluetooth_off))
+            }
+            else {
+                labelTitle.setText(getString(R.string.calibration_title, CalibrateTotal + 1))
+            }
 
             val DBPSeekBarListener: OnSeekBarChangeListener = object : OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -164,116 +172,135 @@ class CalibrateDialogFragment : DialogFragment() {
                 .setPositiveButton("ok",
                     DialogInterface.OnClickListener { dialog, id ->
 
-                        when (CalibrateTotal) {
-                            0 -> {
-                                CalibrateTime1 = currentTimeMillis()
-                                CalibrateTotal = 1
-                                RealDBP1 = (inputDBPSeekBar.getProgress()+50).toDouble()
-                                RealSBP1 = (inputSBPSeekBar.getProgress()+80).toDouble()
-                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
-                                val calibrateDialogFragment = CalibrateDialogFragment()
-                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
-                            }
-                            1 -> {
-                                CalibrateTime2 = currentTimeMillis()
-                                CalibrateTotal = 2
-                                RealDBP2 = (inputDBPSeekBar.getProgress()+50).toDouble()
-                                RealSBP2 = (inputSBPSeekBar.getProgress()+80).toDouble()
-                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
-                                val calibrateDialogFragment = CalibrateDialogFragment()
-                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
-                            }
-                            2 -> {
-                                CalibrateTime3 = currentTimeMillis()
-                                CalibrateTotal = 3
-                                RealDBP3 = (inputDBPSeekBar.getProgress()+50).toDouble()
-                                RealSBP3 = (inputSBPSeekBar.getProgress()+80).toDouble()
-                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
-                                val calibrateDialogFragment = CalibrateDialogFragment()
-                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
-                            }
-                            3 -> {
-                                CalibrateTime4 = currentTimeMillis()
-                                CalibrateTotal = 4
-                                RealDBP4 = (inputDBPSeekBar.getProgress()+50).toDouble()
-                                RealSBP4 = (inputSBPSeekBar.getProgress()+80).toDouble()
-                                val fm: FragmentManager = requireActivity().getSupportFragmentManager()
-                                val calibrateDialogFragment = CalibrateDialogFragment()
-                                calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
-                            }
-                            4 -> {
-                                CalibrateTime5 = currentTimeMillis()
-                                CalibrateTotal = 0
-                                RealDBP5 = (inputDBPSeekBar.getProgress()+50).toDouble()
-                                RealSBP5 = (inputSBPSeekBar.getProgress()+80).toDouble()
+                        if(sharedPref.getInt("isBluetoothOn", 0) == 1){
 
-                                var ecg = DoubleArray(5000)
-                                var ppg = DoubleArray(5000)
-
-                                var listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime1)
-                                for (i in listOfData.indices) {
-
-                                    ecg[i] = listOfData[i].getECG()
-                                    ppg[i] = listOfData[i].getPPG()
+                            when (CalibrateTotal) {
+                                0 -> {
+                                    CalibrateTime1 = currentTimeMillis()
+                                    CalibrateTotal = 1
+                                    RealDBP1 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                    RealSBP1 = (inputSBPSeekBar.getProgress() + 80).toDouble()
+                                    val fm: FragmentManager =
+                                        requireActivity().getSupportFragmentManager()
+                                    val calibrateDialogFragment = CalibrateDialogFragment()
+                                    calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime2)
-                                for (i in listOfData.indices) {
-
-                                    ecg[i+1000] = listOfData[i].getECG()
-                                    ppg[i+1000] = listOfData[i].getPPG()
+                                1 -> {
+                                    CalibrateTime2 = currentTimeMillis()
+                                    CalibrateTotal = 2
+                                    RealDBP2 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                    RealSBP2 = (inputSBPSeekBar.getProgress() + 80).toDouble()
+                                    val fm: FragmentManager =
+                                        requireActivity().getSupportFragmentManager()
+                                    val calibrateDialogFragment = CalibrateDialogFragment()
+                                    calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime3)
-                                for (i in listOfData.indices) {
-
-                                    ecg[i+2000] = listOfData[i].getECG()
-                                    ppg[i+2000] = listOfData[i].getPPG()
+                                2 -> {
+                                    CalibrateTime3 = currentTimeMillis()
+                                    CalibrateTotal = 3
+                                    RealDBP3 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                    RealSBP3 = (inputSBPSeekBar.getProgress() + 80).toDouble()
+                                    val fm: FragmentManager =
+                                        requireActivity().getSupportFragmentManager()
+                                    val calibrateDialogFragment = CalibrateDialogFragment()
+                                    calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime4)
-                                for (i in listOfData.indices) {
-
-                                    ecg[i+3000] = listOfData[i].getECG()
-                                    ppg[i+3000] = listOfData[i].getPPG()
+                                3 -> {
+                                    CalibrateTime4 = currentTimeMillis()
+                                    CalibrateTotal = 4
+                                    RealDBP4 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                    RealSBP4 = (inputSBPSeekBar.getProgress() + 80).toDouble()
+                                    val fm: FragmentManager =
+                                        requireActivity().getSupportFragmentManager()
+                                    val calibrateDialogFragment = CalibrateDialogFragment()
+                                    calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
-                                listOfData = (activity as MainActivity).readDataLast1000(CalibrateTime5)
-                                for (i in listOfData.indices) {
+                                4 -> {
+                                    CalibrateTime5 = currentTimeMillis()
+                                    CalibrateTotal = 0
+                                    RealDBP5 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                    RealSBP5 = (inputSBPSeekBar.getProgress() + 80).toDouble()
 
-                                    ecg[i+4000] = listOfData[i].getECG()
-                                    ppg[i+4000] = listOfData[i].getPPG()
+                                    var ecg = DoubleArray(5000)
+                                    var ppg = DoubleArray(5000)
+
+                                    var listOfData =
+                                        (activity as MainActivity).readDataLast1000(CalibrateTime1)
+                                    for (i in listOfData.indices) {
+
+                                        ecg[i] = listOfData[i].getECG()
+                                        ppg[i] = listOfData[i].getPPG()
+                                    }
+                                    listOfData =
+                                        (activity as MainActivity).readDataLast1000(CalibrateTime2)
+                                    for (i in listOfData.indices) {
+
+                                        ecg[i + 1000] = listOfData[i].getECG()
+                                        ppg[i + 1000] = listOfData[i].getPPG()
+                                    }
+                                    listOfData =
+                                        (activity as MainActivity).readDataLast1000(CalibrateTime3)
+                                    for (i in listOfData.indices) {
+
+                                        ecg[i + 2000] = listOfData[i].getECG()
+                                        ppg[i + 2000] = listOfData[i].getPPG()
+                                    }
+                                    listOfData =
+                                        (activity as MainActivity).readDataLast1000(CalibrateTime4)
+                                    for (i in listOfData.indices) {
+
+                                        ecg[i + 3000] = listOfData[i].getECG()
+                                        ppg[i + 3000] = listOfData[i].getPPG()
+                                    }
+                                    listOfData =
+                                        (activity as MainActivity).readDataLast1000(CalibrateTime5)
+                                    for (i in listOfData.indices) {
+
+                                        ecg[i + 4000] = listOfData[i].getECG()
+                                        ppg[i + 4000] = listOfData[i].getPPG()
+                                    }
+
+                                    var realDBP = doubleArrayOf(
+                                        RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5
+                                    )
+
+                                    var realSBP = doubleArrayOf(
+                                        RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5
+                                    )
+
+
+                                    (activity as MainActivity).calibrate_wrapper(
+                                        ecg,
+                                        ppg,
+                                        realDBP,
+                                        realSBP
+                                    )
+
+
+                                    RealDBP1 = 0.0
+                                    RealDBP2 = 0.0
+                                    RealDBP3 = 0.0
+                                    RealDBP4 = 0.0
+                                    RealDBP5 = 0.0
+
+                                    RealSBP1 = 0.0
+                                    RealSBP2 = 0.0
+                                    RealSBP3 = 0.0
+                                    RealSBP4 = 0.0
+                                    RealSBP5 = 0.0
+
+                                    CalibrateTime1 = 0L
+                                    CalibrateTime2 = 0L
+                                    CalibrateTime3 = 0L
+                                    CalibrateTime4 = 0L
+                                    CalibrateTime5 = 0L
+
+                                    CalibrateTotal = 0
+
                                 }
-
-                                var realDBP = doubleArrayOf(
-                                    RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5)
-
-                                var realSBP = doubleArrayOf(
-                                    RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5)
-
-
-                                (activity as MainActivity).calibrate_wrapper(ecg, ppg, realDBP, realSBP)
-
-
-                                 RealDBP1 = 0.0
-                                 RealDBP2 = 0.0
-                                 RealDBP3 = 0.0
-                                 RealDBP4 = 0.0
-                                 RealDBP5 = 0.0
-
-                                 RealSBP1 = 0.0
-                                 RealSBP2 = 0.0
-                                 RealSBP3 = 0.0
-                                 RealSBP4 = 0.0
-                                 RealSBP5 = 0.0
-
-                                 CalibrateTime1 = 0L
-                                 CalibrateTime2 = 0L
-                                 CalibrateTime3 = 0L
-                                 CalibrateTime4 = 0L
-                                 CalibrateTime5 = 0L
-
-                                 CalibrateTotal = 0
-
-                            }
-                            else -> { // Note the block
-                                println("Calibration error")
+                                else -> { // Note the block
+                                    println("Calibration error")
+                                }
                             }
                         }
 
