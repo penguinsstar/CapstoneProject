@@ -94,34 +94,34 @@ class MainActivity : AppCompatActivity() {
             scanLeDevice(filters, settings)
         }
 
-
-//        GlobalScope.launch(Dispatchers.IO) {
-//
-//            //debug set to true
-//            if (true) {
-//
-//                val editor = sharedPref.edit()
-//                editor.putLong("SBP0", 0L)
-//                editor.putLong("DBP0", 0L)
-//                editor.putLong("PTT0", 0L)
-//                editor.putInt("isCalibrated", 0)
-//                editor.apply()
-//
-//                var assetManager = getAssets();
-//                var myInput = assetManager.open("testdata.xls");
-//                myFileSystem = POIFSFileSystem(myInput)
-//
-//                var dataBaseHandler = DatabaseHandler(this@MainActivity)
-//                dataBaseHandler.deleteAll()
-//                (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
-//
-//
-//                inputData()
-//                inputData()
-//            }
-//
-//        }
         /*
+        GlobalScope.launch(Dispatchers.IO) {
+
+            //debug
+
+
+            val editor = sharedPref.edit()
+            editor.putLong("SBP0", 0L)
+            editor.putLong("DBP0", 0L)
+            editor.putLong("PTT0", 0L)
+            editor.putInt("isCalibrated", 0)
+            editor.apply()
+
+            var assetManager = getAssets();
+            var myInput = assetManager.open("testdata.xls");
+            myFileSystem = POIFSFileSystem(myInput)
+
+            var dataBaseHandler = DatabaseHandler(this@MainActivity)
+            dataBaseHandler.deleteAll()
+            (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
+
+
+            inputData()
+            inputData()
+
+
+        }
+
         GlobalScope.launch(Dispatchers.Default) {
 
             //debug set to true
@@ -221,17 +221,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scanLeDevice( filters: List<ScanFilter>, settings: ScanSettings) {
-        if (!scanning) { // Stops scanning after a pre-defined scan period.
-            handler.postDelayed({
-                scanning = false
-                bluetoothLeScanner?.stopScan(leScanCallback)
-            }, SCAN_PERIOD)
-            scanning = true
+//        if (!scanning) { // Stops scanning after a pre-defined scan period.
+//            handler.postDelayed({
+//                scanning = false
+//                bluetoothLeScanner?.stopScan(leScanCallback)
+//            }, SCAN_PERIOD)
+//            scanning = true
             bluetoothLeScanner?.startScan(filters, settings, leScanCallback)
-        } else {
-            scanning = false
-            bluetoothLeScanner?.stopScan(leScanCallback)
-        }
+//        } else {
+//            scanning = false
+//            bluetoothLeScanner?.stopScan(leScanCallback)
+//        }
     }
 
     // Device scan callback.
