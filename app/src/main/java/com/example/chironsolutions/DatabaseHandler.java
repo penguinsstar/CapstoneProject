@@ -256,17 +256,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void deleteAll(){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        String queryString = "DROP TABLE IF EXISTS " + RAW_DATA_TABLE;
+        String queryString = "DELETE FROM " + RAW_DATA_TABLE;
         db.execSQL(queryString);
-        queryString = "DROP TABLE IF EXISTS " + COMPUTED_DATA_TABLE;
+        queryString = "DELETE FROM " + COMPUTED_DATA_TABLE;
         db.execSQL(queryString);
-        queryString = "DROP TABLE IF EXISTS User_Table";
-        db.execSQL(queryString);
-
-        String createTableStatement = "CREATE TABLE " + RAW_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
-        db.execSQL(createTableStatement);
-        createTableStatement = "CREATE TABLE " + COMPUTED_DATA_TABLE + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_PPG + " DOUBLE, " + COLUMN_ECG + " DOUBLE, " + COLUMN_DBP + " DOUBLE, " + COLUMN_SBP + " DOUBLE, " + COLUMN_DATE + " LONG)";
-        db.execSQL(createTableStatement);
     }
 
 }
