@@ -308,7 +308,7 @@ class ClearDataDialogFragment : DialogFragment() {
 
                         var dataBaseHandler = DatabaseHandler(activity as MainActivity)
                         dataBaseHandler.deleteAll()
-                        (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, 0)
+                        (activity as MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
 
                         val editor = sharedPref.edit()
                         editor.putLong("SBP0", 0L)

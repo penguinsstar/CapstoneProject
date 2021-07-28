@@ -108,6 +108,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }while (cursor.moveToNext());
         }
         else{
+            UserDataModel newData = new UserDataModel(-1, 0,0, 0, 0, System.currentTimeMillis());
+            returnList.add(newData);
             // fail, empty list
         }
 
@@ -141,6 +143,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }while (cursor.moveToNext());
         }
         else{
+            UserDataModel newData = new UserDataModel(-1, 0,0, 0, 0, System.currentTimeMillis());
+            returnList.add(newData);
             // fail, empty list
         }
 
@@ -174,6 +178,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }while (cursor.moveToNext());
         }
         else{
+            UserDataModel newData = new UserDataModel(-1, 0,0, 0, 0, System.currentTimeMillis());
+            returnList.add(newData);
             // fail, empty list
         }
 
@@ -207,6 +213,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }while (cursor.moveToNext());
         }
         else{
+            UserDataModel newData = new UserDataModel(-1, 0,0, 0, 0, System.currentTimeMillis());
+            returnList.add(newData);
             // fail, empty list
         }
 
@@ -236,6 +244,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         }
         else{
+             latestData = new UserDataModel(-1, 0,0, 0, 0, System.currentTimeMillis());
             // fail, empty list
         }
 
