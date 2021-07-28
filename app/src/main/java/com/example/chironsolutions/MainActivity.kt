@@ -1,12 +1,18 @@
 package com.example.chironsolutions
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.Manifest
+import android.bluetooth.*
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
+import android.content.*
+import android.content.pm.PackageManager
+import android.os.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -26,12 +32,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     lateinit var sharedPref: SharedPreferences
+    lateinit var myFileSystem :  POIFSFileSystem
     var column: Int = 0
     var row: Int = 0
     var gamma = 0.031
+    val REQUEST_ENABLE_BT = 0
+    val PERMISSION_CODE = 1
 
+    private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
+    private var scanning = false
+    private val handler = Handler()
+    private val SCAN_PERIOD: Long = 15000
 
-    lateinit var myFileSystem :  POIFSFileSystem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,32 +66,61 @@ class MainActivity : AppCompatActivity() {
 
         sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        GlobalScope.launch(Dispatchers.IO) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(baseContext,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    PERMISSION_CODE)
+            }
+        }
+        if (bluetoothAdapter != null) {
 
-            //debug set to true
-            if (true) {
+            if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+            if (bluetoothAdapter.isEnabled == false) {
 
-                val editor = sharedPref.edit()
-                editor.putLong("SBP0", 0L)
-                editor.putLong("DBP0", 0L)
-                editor.putLong("PTT0", 0L)
-                editor.putInt("isCalibrated", 0)
-                editor.apply()
-
-                var assetManager = getAssets();
-                var myInput = assetManager.open("testdata.xls");
-                myFileSystem = POIFSFileSystem(myInput)
-
-                var dataBaseHandler = DatabaseHandler(this@MainActivity)
-                dataBaseHandler.deleteAll()
-                (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
-
-
-                inputData()
-                inputData()
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             }
 
+            val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))).build()
+            val filters = listOf(filter)
+            val settings = ScanSettings.Builder().build()
+            scanLeDevice(filters, settings)
         }
+
+
+//        GlobalScope.launch(Dispatchers.IO) {
+//
+//            //debug set to true
+//            if (true) {
+//
+//                val editor = sharedPref.edit()
+//                editor.putLong("SBP0", 0L)
+//                editor.putLong("DBP0", 0L)
+//                editor.putLong("PTT0", 0L)
+//                editor.putInt("isCalibrated", 0)
+//                editor.apply()
+//
+//                var assetManager = getAssets();
+//                var myInput = assetManager.open("testdata.xls");
+//                myFileSystem = POIFSFileSystem(myInput)
+//
+//                var dataBaseHandler = DatabaseHandler(this@MainActivity)
+//                dataBaseHandler.deleteAll()
+//                (this@MainActivity).DataEntryComputed(-1, 0.0, 0.0, 0.0, 0.0, System.currentTimeMillis())
+//
+//
+//                inputData()
+//                inputData()
+//            }
+//
+//        }
         /*
         GlobalScope.launch(Dispatchers.Default) {
 
@@ -165,6 +207,81 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUEST_ENABLE_BT -> if (resultCode == RESULT_OK) {
+
+            } else {
+                // User did not enable Bluetooth or an error occurred
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun scanLeDevice( filters: List<ScanFilter>, settings: ScanSettings) {
+        if (!scanning) { // Stops scanning after a pre-defined scan period.
+            handler.postDelayed({
+                scanning = false
+                bluetoothLeScanner?.stopScan(leScanCallback)
+            }, SCAN_PERIOD)
+            scanning = true
+            bluetoothLeScanner?.startScan(filters, settings, leScanCallback)
+        } else {
+            scanning = false
+            bluetoothLeScanner?.stopScan(leScanCallback)
+        }
+    }
+
+    // Device scan callback.
+    private val leScanCallback: ScanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            super.onScanResult(callbackType, result)
+            //leDeviceListAdapter.addDevice(result.device)
+            //leDeviceListAdapter.notifyDataSetChanged()
+
+            var device = result.device //can maybe skip name check
+//            if( device.name == "NAMEHarp"){
+
+                //var bluetoothGatt: BluetoothGatt? = null
+
+                device.connectGatt(this@MainActivity, true, gattCallback)
+//            }
+
+//            var intent = Intent("new_ble")
+//            sendBroadcast(Intent(intent))
+        }
+    }
+
+    private val gattCallback = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            if(newState == BluetoothGatt.STATE_CONNECTED) {
+                //gatt?.requestMtu(256)
+                gatt?.discoverServices()
+            }
+        }
+
+        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+
+            val characteristic = gatt?.getService(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))
+                ?.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"))
+            gatt?.setCharacteristicNotification(characteristic, true)
+
+        }
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?
+        ) {
+            super.onCharacteristicChanged(gatt, characteristic)
+            characteristic?.let{
+
+                var dataInput = characteristic.value.toString()
+                var string = dataInput.split(" ")
+
+                DataEntryRaw(-1, string[1].toDouble(), string[0].toDouble(), 0.0, 0.0, System.currentTimeMillis())
+            }
+        }
+    }
 
 
 
@@ -248,6 +365,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun calibrate_wrapper(ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray){
+
+
+        var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
+
+        val editor = sharedPref.edit()
+        editor.putLong("SBP0", java.lang.Double.doubleToRawLongBits(value[0]))
+        editor.putLong("DBP0", java.lang.Double.doubleToRawLongBits(value[1]))
+        editor.putLong("PTT0", java.lang.Double.doubleToRawLongBits(value[2]))
+        editor.putInt("isCalibrated", 1)
+        editor.apply()
+
+
+    }
+
+    fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
+
+//debug off
+        //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
+        var latestDBP = calculations.calculate_DBP(java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
+            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)), java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)), ECG, PPG, gamma)
+        DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
+
+    }
+
     fun inputData() {
 
         var xlWb = WorkbookFactory.create(myFileSystem)
@@ -288,35 +430,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun calibrate_wrapper(ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray){
-
-
-        var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
-
-        val editor = sharedPref.edit()
-        editor.putLong("SBP0", java.lang.Double.doubleToRawLongBits(value[0]))
-        editor.putLong("DBP0", java.lang.Double.doubleToRawLongBits(value[1]))
-        editor.putLong("PTT0", java.lang.Double.doubleToRawLongBits(value[2]))
-        editor.putInt("isCalibrated", 1)
-        editor.apply()
-
-
-    }
-
-    fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
-
-//debug off
-        //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
-        var latestDBP = calculations.calculate_DBP(java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
-            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)), java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)), ECG, PPG, gamma)
-        DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
-
-    }
-
-
     override fun onDestroy() {
         super.onDestroy()
-
 
     }
 
