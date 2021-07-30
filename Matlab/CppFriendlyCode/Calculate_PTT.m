@@ -1,5 +1,7 @@
 function [ptt] = Calculate_PTT(ECG, PPG)
 
+[ECG, PPG] = Data_Processing(ECG, PPG);
+
 sampling_rate = 100;
 
 j=1;
