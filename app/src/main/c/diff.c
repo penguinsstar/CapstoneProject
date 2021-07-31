@@ -20,7 +20,10 @@ void diff(const emxArray_real_T *x, emxArray_real_T *y)
   double d;
   double tmp1;
   double work_data;
+  int b_y;
   int dimSize;
+  int i;
+  int m;
   int u0;
   dimSize = x->size[1];
   if (x->size[1] == 0) {
@@ -28,25 +31,27 @@ void diff(const emxArray_real_T *x, emxArray_real_T *y)
     y->size[1] = 0;
   } else {
     u0 = x->size[1] - 1;
-    if (u0 >= 1) {
-      u0 = 1;
-    }
     if (u0 < 1) {
+      b_y = u0;
+    } else {
+      b_y = 1;
+    }
+    if (b_y < 1) {
       y->size[0] = 1;
       y->size[1] = 0;
     } else {
-      u0 = y->size[0] * y->size[1];
+      i = y->size[0] * y->size[1];
       y->size[0] = 1;
       y->size[1] = x->size[1] - 1;
-      emxEnsureCapacity_real_T(y, u0);
+      emxEnsureCapacity_real_T(y, i);
       if (x->size[1] - 1 != 0) {
         work_data = x->data[0];
-        for (u0 = 2; u0 <= dimSize; u0++) {
-          tmp1 = x->data[u0 - 1];
+        for (m = 2; m <= dimSize; m++) {
+          tmp1 = x->data[m - 1];
           d = tmp1;
           tmp1 -= work_data;
           work_data = d;
-          y->data[u0 - 2] = tmp1;
+          y->data[m - 2] = tmp1;
         }
       }
     }

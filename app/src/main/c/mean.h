@@ -15,6 +15,7 @@
 /* Include files */
 #include "Calculate_DBP_types.h"
 #include "rtwtypes.h"
+#include "omp.h"
 #include <stddef.h>
 #include <stdlib.h>
 

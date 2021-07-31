@@ -20,12 +20,11 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         #native-lib.c)
-        ${CSOURCES}
-        ${HSOURCES})
+        ${CSOURCES})
 
 
 # Specifies a path to native header files.
-include_directories(include/)
+#include_directories(include/)
 
 
 # Searches for a specified prebuilt library and stores the path as a

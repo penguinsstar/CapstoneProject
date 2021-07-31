@@ -14,8 +14,14 @@
 
 /* Include files */
 #include "rtwtypes.h"
+#include "omp.h"
 #include <stddef.h>
 #include <stdlib.h>
+
+/* Variable Declarations */
+extern omp_nest_lock_t emlrtNestLockGlobal;
+extern const double dv[2049];
+extern boolean_T isInitialized_Calculate_DBP;
 
 #endif
 /* End of code generation (Calculate_DBP_data.h) */

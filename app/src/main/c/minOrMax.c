@@ -16,6 +16,7 @@
 /* Function Definitions */
 void maximum(const emxArray_real_T *x, double *ex, int *idx)
 {
+  double b_ex;
   double d;
   int k;
   int last;
@@ -32,15 +33,16 @@ void maximum(const emxArray_real_T *x, double *ex, int *idx)
       *idx = 1;
     }
   } else {
-    *ex = x->data[0];
+    b_ex = x->data[0];
     *idx = 1;
     for (k = 2; k <= last; k++) {
       d = x->data[k - 1];
-      if (*ex < d) {
-        *ex = d;
+      if (b_ex < d) {
+        b_ex = d;
         *idx = k;
       }
     }
+    *ex = b_ex;
   }
 }
 

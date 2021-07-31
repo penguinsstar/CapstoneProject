@@ -11,6 +11,8 @@
 
 /* Include files */
 #include "Calibrate.h"
+#include "Calculate_DBP_data.h"
+#include "Calculate_DBP_initialize.h"
 #include "Calculate_PTT.h"
 #include <math.h>
 #include <stdbool.h>
@@ -50,6 +52,9 @@ void Calibrate(const double ECG[5000], const double PPG[5000],
 {
   double PTT[5];
   int c;
+  if (!isInitialized_Calculate_DBP) {
+    Calculate_DBP_initialize();
+  }
   /*  CalibrationMode = 0 : mPTP */
   /*  CalibrationMode = 1 : fPTP */
   for (c = 0; c < 5; c++) {

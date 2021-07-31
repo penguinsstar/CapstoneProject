@@ -11,10 +11,13 @@
 
 /* Include files */
 #include "Calculate_DBP_initialize.h"
+#include "Calculate_DBP_data.h"
 
 /* Function Definitions */
 void Calculate_DBP_initialize(void)
 {
+//  omp_init_nest_lock(&emlrtNestLockGlobal);
+//  isInitialized_Calculate_DBP = true;
 }
 
 /* End of code generation (Calculate_DBP_initialize.c) */

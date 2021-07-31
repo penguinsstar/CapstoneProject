@@ -11,11 +11,13 @@
 
 /* Include files */
 #include "Calculate_DBP_terminate.h"
+#include "Calculate_DBP_data.h"
 
 /* Function Definitions */
 void Calculate_DBP_terminate(void)
 {
-  /* (no terminate code required) */
+//  omp_destroy_nest_lock(&emlrtNestLockGlobal);
+//  isInitialized_Calculate_DBP = false;
 }
 
 /* End of code generation (Calculate_DBP_terminate.c) */

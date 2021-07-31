@@ -3,14 +3,14 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * Calculate_DBP_terminate.h
+ * filter.h
  *
- * Code generation for function 'Calculate_DBP_terminate'
+ * Code generation for function 'filter'
  *
  */
 
-#ifndef CALCULATE_DBP_TERMINATE_H
-#define CALCULATE_DBP_TERMINATE_H
+#ifndef FILTER_H
+#define FILTER_H
 
 /* Include files */
 #include "rtwtypes.h"
@@ -23,11 +23,12 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calculate_DBP_terminate(void);
+void filter(double b_data[], double a_data[], const double x_data[],
+            const double zi_data[], double y_data[], int *y_size);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-/* End of code generation (Calculate_DBP_terminate.h) */
+/* End of code generation (filter.h) */

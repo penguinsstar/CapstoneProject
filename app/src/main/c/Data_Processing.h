@@ -3,14 +3,14 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * Calculate_DBP_terminate.h
+ * Data_Processing.h
  *
- * Code generation for function 'Calculate_DBP_terminate'
+ * Code generation for function 'Data_Processing'
  *
  */
 
-#ifndef CALCULATE_DBP_TERMINATE_H
-#define CALCULATE_DBP_TERMINATE_H
+#ifndef DATA_PROCESSING_H
+#define DATA_PROCESSING_H
 
 /* Include files */
 #include "rtwtypes.h"
@@ -23,11 +23,11 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calculate_DBP_terminate(void);
+void Data_Processing(double ECG[1000], double PPG[1000]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-/* End of code generation (Calculate_DBP_terminate.h) */
+/* End of code generation (Data_Processing.h) */

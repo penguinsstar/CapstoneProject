@@ -11,6 +11,8 @@
 
 /* Include files */
 #include "Calculate_DBP.h"
+#include "Calculate_DBP_data.h"
+#include "Calculate_DBP_initialize.h"
 #include "Calculate_PTT.h"
 #include <math.h>
 #include <stdbool.h>
@@ -36,13 +38,18 @@ double Calculate_DBP(double SBP0, double DBP0, double PTT0,
                      const double ECG[1000], const double PPG[1000],
                      double b_gamma)
 {
-  double a_tmp;
+  double PTTcurrent;
+  double a;
+  if (!isInitialized_Calculate_DBP) {
+    Calculate_DBP_initialize();
+  }
   /*  CalibrationMode = 0 : mPTP */
   /*  CalibrationMode = 1 : fPTP */
+  PTTcurrent = Calculate_PTT(ECG, PPG);
   /*  BP estimation with mPTP parameters only */
-  a_tmp = PTT0 / Calculate_PTT(ECG, PPG);
-  return ((SBP0 + 2.0 * DBP0) / 3.0 + 2.0 / b_gamma * log(a_tmp)) -
-         (SBP0 - DBP0) / 3.0 * (a_tmp * a_tmp);
+  a = PTT0 / PTTcurrent;
+  return ((SBP0 + 2.0 * DBP0) / 3.0 + 2.0 / b_gamma * log(PTT0 / PTTcurrent)) -
+         (SBP0 - DBP0) / 3.0 * (a * a);
 }
 
 /* End of code generation (Calculate_DBP.c) */

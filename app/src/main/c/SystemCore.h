@@ -3,16 +3,17 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * Calculate_DBP_terminate.h
+ * SystemCore.h
  *
- * Code generation for function 'Calculate_DBP_terminate'
+ * Code generation for function 'SystemCore'
  *
  */
 
-#ifndef CALCULATE_DBP_TERMINATE_H
-#define CALCULATE_DBP_TERMINATE_H
+#ifndef SYSTEMCORE_H
+#define SYSTEMCORE_H
 
 /* Include files */
+#include "Calculate_DBP_internal_types.h"
 #include "rtwtypes.h"
 #include "omp.h"
 #include <stddef.h>
@@ -23,11 +24,12 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calculate_DBP_terminate(void);
+void SystemCore_step(dspcodegen_IIRFilter *obj, const double varargin_1[1000],
+                     double varargout_1[1000]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-/* End of code generation (Calculate_DBP_terminate.h) */
+/* End of code generation (SystemCore.h) */

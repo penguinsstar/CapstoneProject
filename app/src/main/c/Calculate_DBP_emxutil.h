@@ -15,6 +15,7 @@
 /* Include files */
 #include "Calculate_DBP_types.h"
 #include "rtwtypes.h"
+#include "omp.h"
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -23,9 +24,15 @@ extern "C" {
 #endif
 
 /* Function Declarations */
+extern void emxEnsureCapacity_int32_T(emxArray_int32_T *emxArray, int oldNumel);
+
 extern void emxEnsureCapacity_real_T(emxArray_real_T *emxArray, int oldNumel);
 
+extern void emxFree_int32_T(emxArray_int32_T **pEmxArray);
+
 extern void emxFree_real_T(emxArray_real_T **pEmxArray);
+
+extern void emxInit_int32_T(emxArray_int32_T **pEmxArray, int numDimensions);
 
 extern void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions);
 

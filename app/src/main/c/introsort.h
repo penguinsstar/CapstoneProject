@@ -3,14 +3,14 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * Calculate_DBP_terminate.h
+ * introsort.h
  *
- * Code generation for function 'Calculate_DBP_terminate'
+ * Code generation for function 'introsort'
  *
  */
 
-#ifndef CALCULATE_DBP_TERMINATE_H
-#define CALCULATE_DBP_TERMINATE_H
+#ifndef INTROSORT_H
+#define INTROSORT_H
 
 /* Include files */
 #include "rtwtypes.h"
@@ -23,11 +23,12 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calculate_DBP_terminate(void);
+void introsort(int x[22], const int cmp_workspace_a[22],
+               const int cmp_workspace_b[22]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-/* End of code generation (Calculate_DBP_terminate.h) */
+/* End of code generation (introsort.h) */
