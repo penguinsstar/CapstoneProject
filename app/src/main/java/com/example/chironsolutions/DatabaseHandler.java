@@ -258,7 +258,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String queryString = "DELETE FROM " + RAW_DATA_TABLE;
         db.execSQL(queryString);
+        queryString = "DELETE FROM sqlite_sequence WHERE name='" + RAW_DATA_TABLE + "'";
+        db.execSQL(queryString);
         queryString = "DELETE FROM " + COMPUTED_DATA_TABLE;
+        queryString = "DELETE FROM sqlite_sequence WHERE name='" + COMPUTED_DATA_TABLE + "'";
+        db.execSQL(queryString);
         db.execSQL(queryString);
     }
 
