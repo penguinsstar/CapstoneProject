@@ -1,7 +1,7 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="3487228272" file="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.prj" location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" name="Calculate_DBP" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="1900590329" file="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.prj" location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" name="Calculate_DBP" preferred-package-location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" preferred-package-type="package.type.zip.flat" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
-      <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
+      <param.BuiltInstrumentedMex />
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
       <param.WorkingFolder>option.WorkingFolder.Project</param.WorkingFolder>
       <param.SpecifiedWorkingFolder />
@@ -69,7 +69,7 @@
       <param.EnableCRICodeCoverage>true</param.EnableCRICodeCoverage>
       <param.EnableAutoParallelizationReporting>true</param.EnableAutoParallelizationReporting>
       <param.EnableJIT>false</param.EnableJIT>
-      <param.EnableJITSilentBailOut>false</param.EnableJITSilentBailOut>
+      <param.EnableJITSilentBailOut />
       <param.CheckForIssuesJIT>true</param.CheckForIssuesJIT>
       <param.EnableGitSupport>false</param.EnableGitSupport>
       <param.EnableAutoCommit>false</param.EnableAutoCommit>
@@ -865,7 +865,7 @@
       </unset>
     </profile>
     <param.objective>option.objective.c</param.objective>
-    <param.WorkflowStep>generateCode</param.WorkflowStep>
+    <param.WorkflowStep>entryPoints</param.WorkflowStep>
     <param.TestSnippets>
       <item>testbench</item>
     </param.TestSnippets>
@@ -895,7 +895,7 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\Calculate_DBP</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>263000324</var.gc.preBuildChecksum>
+    <var.gc.preBuildChecksum>1900590329</var.gc.preBuildChecksum>
     <var.cfi.lastOutputRoot>codegen\mex\Calculate_DBP_mex</var.cfi.lastOutputRoot>
     <var.cfi.preBuildChecksum>1434200594</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>testbench</var.lastCfiTestSnippet>

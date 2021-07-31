@@ -18,10 +18,6 @@
 #include "minOrMax.h"
 #include <math.h>
 #include <string.h>
-#include "diff.c"
-#include "mean.c"
-#include "minOrMax.c"
-#include "Calculate_DBP_emxutil.c"
 
 /* Function Definitions */
 double Calculate_PTT(const double ECG[1000], const double PPG[1000])
