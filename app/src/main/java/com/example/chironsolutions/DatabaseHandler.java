@@ -261,6 +261,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         queryString = "DELETE FROM sqlite_sequence WHERE name='" + RAW_DATA_TABLE + "'";
         db.execSQL(queryString);
         queryString = "DELETE FROM " + COMPUTED_DATA_TABLE;
+        db.execSQL(queryString);
         queryString = "DELETE FROM sqlite_sequence WHERE name='" + COMPUTED_DATA_TABLE + "'";
         db.execSQL(queryString);
         db.execSQL(queryString);

@@ -109,11 +109,7 @@ class SettingsFragment : Fragment() {
 
             if (sharedPref.getInt("isBluetoothOn", 0) == 0){
 
-                val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))).build()
-                val filters = listOf(filter)
-                val settings = ScanSettings.Builder().build()
-                (activity as MainActivity).scanLeDevice( filters, settings)
-                Toast.makeText(requireContext(), R.string.connect_to_bluetooth, Toast.LENGTH_SHORT).show();
+                (activity as MainActivity).scanLeDevice()
             }
             else{
                 Toast.makeText(requireContext(), R.string.bluetooth_already_on, Toast.LENGTH_SHORT).show();

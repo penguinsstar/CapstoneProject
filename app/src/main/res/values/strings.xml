@@ -12,4 +12,10 @@
     <string name="bluetooth_off">"Bluetooth not connected "</string>
     <string name="connect_to_bluetooth">Attempting to connect to BLE device</string>
     <string name="bluetooth_already_on">Bluetooth is already on and connected</string>
+    <string name="starting_scan">starting BLE scan</string>
+    <string name="device_found">BLE device was found: %1$s</string>
+    <string name="device_connected">BLE device connected</string>
+    <string name="services_discovered">BLE services discovered</string>
+    <string name="connection_closed">BLE connection closed or failed to connect</string>
+    <string name="connection_error">"Error with connection to BLE: %1$d"</string>
 </resources>

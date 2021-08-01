@@ -6,6 +6,8 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_FIRST_MATCH
+import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
@@ -42,9 +44,6 @@ class MainActivity : AppCompatActivity() {
 
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
-    private var scanning = false
-    private val handler = Handler()
-    private val SCAN_PERIOD: Long = 15000
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,20 +65,20 @@ class MainActivity : AppCompatActivity() {
 
 
         sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+        var editor = sharedPref.edit()
         editor.putInt("isBluetoothOn", 0)
         editor.apply()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(baseContext,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    PERMISSION_CODE)
-            }
+
+        if (ContextCompat.checkSelfPermission(baseContext,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_CODE)
         }
+
         if (bluetoothAdapter != null) {
 
             if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -92,16 +91,20 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             }
 
-            val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))).build()
-            val filters = listOf(filter)
-            val settings = ScanSettings.Builder().build()
-            scanLeDevice(filters, settings)
+            //val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))).build()
+
+
+            scanLeDevice()
         }
 
         /*
         GlobalScope.launch(Dispatchers.IO) {
 
             //debug
+
+            editor = sharedPref.edit()
+            editor.putInt("isBluetoothOn", 1)
+            editor.apply()
 
 
             val editor = sharedPref.edit()
@@ -112,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             editor.apply()
 
             var assetManager = getAssets();
-            var myInput = assetManager.open("testdata.xls");
+            var myInput = assetManager.open("testdataFull.xls");
             myFileSystem = POIFSFileSystem(myInput)
 
             var dataBaseHandler = DatabaseHandler(this@MainActivity)
@@ -122,8 +125,7 @@ class MainActivity : AppCompatActivity() {
 
             inputData()
             inputData()
-
-
+            inputData()
         }
 
         GlobalScope.launch(Dispatchers.Default) {
@@ -211,6 +213,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_ENABLE_BT -> if (resultCode == RESULT_OK) {
@@ -224,14 +228,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun scanLeDevice( filters: List<ScanFilter>, settings: ScanSettings) {
+    fun scanLeDevice() {
+
+        val builder = ScanFilter.Builder()
+        builder.setDeviceName("Harp")
+        val scanFilter = builder.build()
+        val filters = listOf(scanFilter)
+
+        val settings = ScanSettings.Builder()
+        settings.setCallbackType(CALLBACK_TYPE_FIRST_MATCH)
+        settings.setScanMode(SCAN_MODE_LOW_LATENCY)
+
 //        if (!scanning) { // Stops scanning after a pre-defined scan period.
 //            handler.postDelayed({
 //                scanning = false
 //                bluetoothLeScanner?.stopScan(leScanCallback)
 //            }, SCAN_PERIOD)
 //            scanning = true
-            bluetoothLeScanner?.startScan(filters, settings, leScanCallback)
+            bluetoothLeScanner?.startScan(filters, settings.build(), leScanCallback)
+            Toast.makeText(this, R.string.starting_scan, Toast.LENGTH_SHORT).show();
 //        } else {
 //            scanning = false
 //            bluetoothLeScanner?.stopScan(leScanCallback)
@@ -245,12 +260,14 @@ class MainActivity : AppCompatActivity() {
             //leDeviceListAdapter.addDevice(result.device)
             //leDeviceListAdapter.notifyDataSetChanged()
 
-            var device = result.device //can maybe skip name check
+            Toast.makeText(this@MainActivity, getString(R.string.device_found, result.device.name), Toast.LENGTH_SHORT).show();
+
+            //val device = result.device //can maybe skip name check
 //            if( device.name == "NAMEHarp"){
 
                 //var bluetoothGatt: BluetoothGatt? = null
 
-                device.connectGatt(this@MainActivity, true, gattCallback)
+            result.device.connectGatt(this@MainActivity, true, gattCallback)
 //            }
 
 //            var intent = Intent("new_ble")
@@ -260,17 +277,31 @@ class MainActivity : AppCompatActivity() {
 
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
-            if(newState == BluetoothGatt.STATE_CONNECTED) {
-                //gatt?.requestMtu(256)
-                gatt?.discoverServices()
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (newState == BluetoothGatt.STATE_CONNECTED) {
+                    //gatt?.requestMtu(256)
+                    Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT)
+                        .show();
+                    gatt?.discoverServices()
+                } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.connection_closed,
+                        Toast.LENGTH_SHORT
+                    ).show();
+                    gatt?.close()
+                }
             }
-            else if(newState == BluetoothGatt.STATE_DISCONNECTED){
+            else{
                 gatt?.close()
-                gatt?.disconnect()
+                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT)
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+
+            Toast.makeText(this@MainActivity, R.string.services_discovered, Toast.LENGTH_SHORT).show();
 
             val characteristic = gatt?.getService(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))
                 ?.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"))
@@ -406,38 +437,52 @@ class MainActivity : AppCompatActivity() {
         var xlWb = WorkbookFactory.create(myFileSystem)
         val xlWs = xlWb.getSheetAt(0)
 
-        row = 0
+        row = 1
         column = 0
         var ecg: Double
         var ppg: Double
 
-        while(column <= 10) {
+
+        while (row < 6000){
 
             ecg = (xlWs.getRow(row).getCell(column)).getNumericCellValue()
-            ppg = (xlWs.getRow(row).getCell(column+ 11)).getNumericCellValue()
-//            var ecg = readFromExcelFile(myFileSystem, column, row) //ecg
-//            var ppg = readFromExcelFile(myFileSystem, column + 11, row) //ppg
-
-            //var ecg = 0.0
-            //var ppg = 0.0
+            ppg = (xlWs.getRow(row).getCell(column+1)).getNumericCellValue()
 
             DataEntryRaw(-1, ppg, ecg, 0.0 /*((row.toDouble()) % 10) + 80*/, 0.0, System.currentTimeMillis())
-
-            if (row >= 999) {
-
-                row = 0
-                column++
-
-                if (column == 10) {
-
-                    break
-                }
-            } else {
-
-                row++
-                //println(row)
-            }
+            row++;
         }
+
+
+
+
+
+//        while(column <= 10) {
+//
+//            ecg = (xlWs.getRow(row).getCell(column)).getNumericCellValue()
+//            ppg = (xlWs.getRow(row).getCell(column+ 11)).getNumericCellValue()
+////            var ecg = readFromExcelFile(myFileSystem, column, row) //ecg
+////            var ppg = readFromExcelFile(myFileSystem, column + 11, row) //ppg
+//
+//            //var ecg = 0.0
+//            //var ppg = 0.0
+//
+//            DataEntryRaw(-1, ppg, ecg, 0.0 /*((row.toDouble()) % 10) + 80*/, 0.0, System.currentTimeMillis())
+//
+//            if (row >= 999) {
+//
+//                row = 0
+//                column++
+//
+//                if (column == 10) {
+//
+//                    break
+//                }
+//            } else {
+//
+//                row++
+//                //println(row)
+//            }
+//        }
     }
 
 
