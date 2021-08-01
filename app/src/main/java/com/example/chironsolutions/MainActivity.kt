@@ -266,7 +266,8 @@ class MainActivity : AppCompatActivity() {
 //            if( device.name == "NAMEHarp"){
 
                 //var bluetoothGatt: BluetoothGatt? = null
-
+            bluetoothLeScanner?.stopScan(leScanCallbackCancel)
+            Thread.sleep(2000)
             result.device.connectGatt(this@MainActivity, true, gattCallback)
 //            }
 
@@ -275,29 +276,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val leScanCallbackCancel: ScanCallback = object : ScanCallback() {
+
+    }
+
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     //gatt?.requestMtu(256)
-                    Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT)
-                        .show();
+                    Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT).show();
                     gatt?.discoverServices()
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.connection_closed,
-                        Toast.LENGTH_SHORT
-                    ).show();
+                    Toast.makeText(this@MainActivity, R.string.connection_closed, Toast.LENGTH_SHORT).show();
                     gatt?.close()
                 }
             }
             else{
+                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT).show()
                 gatt?.close()
-                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT)
             }
         }
+
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
 
