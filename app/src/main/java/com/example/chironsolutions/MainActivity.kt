@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity() {
             //leDeviceListAdapter.addDevice(result.device)
             //leDeviceListAdapter.notifyDataSetChanged()
 
-            Toast.makeText(this@MainActivity, getString(R.string.device_found, result.device.name), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this@MainActivity, getString(R.string.device_found, result.device.name), Toast.LENGTH_SHORT).show();
 
             //val device = result.device //can maybe skip name check
 //            if( device.name == "NAMEHarp"){
@@ -283,18 +283,20 @@ class MainActivity : AppCompatActivity() {
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
 
+            Thread.sleep(1000)
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
-                    //gatt?.requestMtu(256)
-                    Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT).show();
+                    var bool = gatt?.requestMtu(256)
+                    //Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT).show();
                     gatt?.discoverServices()
-                } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-                    Toast.makeText(this@MainActivity, R.string.connection_closed, Toast.LENGTH_SHORT).show();
+                }
+                else {
+//                    Toast.makeText(this@MainActivity, R.string.connection_closed, Toast.LENGTH_SHORT).show();
                     gatt?.close()
                 }
             }
             else{
-                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT).show()
                 gatt?.close()
             }
         }
@@ -302,8 +304,9 @@ class MainActivity : AppCompatActivity() {
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
 
-            Toast.makeText(this@MainActivity, R.string.services_discovered, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this@MainActivity, R.string.services_discovered, Toast.LENGTH_SHORT).show();
 
+            Thread.sleep(1000)
             val characteristic = gatt?.getService(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))
                 ?.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"))
             gatt?.setCharacteristicNotification(characteristic, true)
@@ -318,7 +321,7 @@ class MainActivity : AppCompatActivity() {
             super.onCharacteristicChanged(gatt, characteristic)
             characteristic?.let{
 
-                var dataInput = characteristic.value.toString()
+                var dataInput = String(characteristic.value)
                 var string = dataInput.split(" ")
 
                 DataEntryRaw(-1, string[1].toDouble(), string[0].toDouble(), 0.0, 0.0, System.currentTimeMillis())
