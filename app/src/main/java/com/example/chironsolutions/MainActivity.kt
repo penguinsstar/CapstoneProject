@@ -372,10 +372,10 @@ class MainActivity : AppCompatActivity() {
         return allData
     }
 
-    fun readDataLast24Hours() : List<UserDataModel>{
+    fun readDataLast5Min() : List<UserDataModel>{
 
         var dataBaseHandler = DatabaseHandler(this@MainActivity)
-        var allData = dataBaseHandler.getLast24Hours();
+        var allData = dataBaseHandler.getLast5Min();
         return allData
     }
 
@@ -432,6 +432,12 @@ class MainActivity : AppCompatActivity() {
         //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
         var latestDBP = calculations.calculate_DBP(java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
             java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)), java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)), ECG, PPG, gamma)
+
+        if (latestDBP < 30 || latestDBP > 200){
+            latestDBP = 0.0
+            Toast.makeText(this, R.string.reposition_module, Toast.LENGTH_SHORT).show();
+        }
+
         DataEntryComputed(-1, 0.0, 0.0, latestDBP, 0.0, System.currentTimeMillis())
 
     }

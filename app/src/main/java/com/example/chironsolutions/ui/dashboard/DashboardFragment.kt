@@ -12,14 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.chironsolutions.MainActivity
-import com.example.chironsolutions.UserDataModel
 import com.example.chironsolutions.databinding.FragmentDashboardBinding
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.fragment_dashboard.*
-import kotlinx.android.synthetic.main.fragment_home.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -75,7 +73,7 @@ class DashboardFragment : Fragment() {
 
         graphView = idGraphView
 
-        var listOfData = (activity as MainActivity).readDataLast24Hours()
+        var listOfData = (activity as MainActivity).readDataLast5Min()
         var startTime = Date(listOfData[0].getDate())
         var endTime = Date(listOfData[listOfData.lastIndex].getDate())
         for (i in listOfData.indices) {
@@ -115,7 +113,7 @@ class DashboardFragment : Fragment() {
 //        series.appendData(DataPoint(Date(latestValue.getDate()),latestValue.getDBP()), true, 86400000)
 //        graphView.getViewport().setMaxX(Date(latestValue.getDate()).getTime().toDouble())
 
-        var listOfData = (activity as MainActivity).readDataLast24Hours()
+        var listOfData = (activity as MainActivity).readDataLast5Min()
         var endTime = Date(listOfData[listOfData.lastIndex].getDate())
         for (i in lastIndex until listOfData.size) {
 

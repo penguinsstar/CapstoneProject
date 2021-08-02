@@ -18,4 +18,5 @@
     <string name="services_discovered">BLE services discovered</string>
     <string name="connection_closed">BLE connection closed or failed to connect</string>
     <string name="connection_error">"Error with connection to BLE: %1$d"</string>
+    <string name="reposition_module">Please hold steady for the module</string>
 </resources>
