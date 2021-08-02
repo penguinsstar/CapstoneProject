@@ -4,9 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
-import android.content.Context
-import android.content.DialogInterface
-import android.content.SharedPreferences
+import android.content.*
 import android.os.Bundle
 import android.os.ParcelUuid
 import android.view.LayoutInflater
@@ -61,6 +59,7 @@ class SettingsFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -82,6 +81,7 @@ class SettingsFragment : Fragment() {
         return root
     }
 
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?) {
@@ -89,6 +89,12 @@ class SettingsFragment : Fragment() {
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
         val btnSeekBLEDevice = idBtnSeekBLEDevice
+        val textDeviceConnected = idTextDeviceConnected
+
+        if (sharedPref.getInt("isBluetoothOn", 0) == 1){
+
+            textDeviceConnected.setText(getString(R.string.bluetooth_connected))
+        }
 
         // set on-click listener
         btnClearUserData.setOnClickListener { view ->
