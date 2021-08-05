@@ -123,7 +123,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<UserDataModel> returnList = new ArrayList<>();
 
 
-        String queryString = "SELECT * FROM " + COMPUTED_DATA_TABLE + " Where " + COLUMN_DATE + " > ((SELECT " + COLUMN_DATE  + " FROM " + RAW_DATA_TABLE + " ORDER BY " + COLUMN_DATE + " DESC LIMIT 1) - 300000) ORDER BY " + COLUMN_DATE + " ASC";
+        String queryString = "SELECT * FROM " + COMPUTED_DATA_TABLE + " Where " + COLUMN_DATE + " > ((SELECT " + COLUMN_DATE  + " FROM " + COMPUTED_DATA_TABLE + " ORDER BY " + COLUMN_DATE + " DESC LIMIT 1) - 300000) ORDER BY " + COLUMN_DATE + " ASC";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(queryString, null);
 
