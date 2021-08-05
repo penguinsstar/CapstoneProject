@@ -314,6 +314,7 @@ class MainActivity : AppCompatActivity() {
             val editor = sharedPref.edit()
             editor.putInt("isBluetoothOn", 1)
             editor.apply()
+            sendBroadcast(Intent("bluetooth_on"))
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?

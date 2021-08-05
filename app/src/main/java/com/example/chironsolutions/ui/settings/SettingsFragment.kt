@@ -23,6 +23,7 @@ import com.example.chironsolutions.DatabaseHandler
 import com.example.chironsolutions.MainActivity
 import com.example.chironsolutions.R
 import com.example.chironsolutions.databinding.FragmentSettingsBinding
+import com.jjoe64.graphview.GraphView
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.lang.System.currentTimeMillis
 import java.util.*
@@ -59,6 +60,15 @@ class SettingsFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if ("bluetooth_on" == intent.action) {
+                bluetooth_on_text()
+            }
+        }
+    }
+    val filter = IntentFilter("bluetooth_on")
+
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -81,6 +91,7 @@ class SettingsFragment : Fragment() {
         return root
     }
 
+    lateinit var textDeviceConnected : TextView
 
     override fun onViewCreated(
         view: View,
@@ -89,7 +100,7 @@ class SettingsFragment : Fragment() {
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
         val btnSeekBLEDevice = idBtnSeekBLEDevice
-        val textDeviceConnected = idTextDeviceConnected
+        textDeviceConnected = idTextDeviceConnected
 
         if (sharedPref.getInt("isBluetoothOn", 0) == 1){
 
@@ -121,11 +132,23 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(requireContext(), R.string.bluetooth_already_on, Toast.LENGTH_SHORT).show();
             }
         }
+
+        requireActivity().applicationContext.registerReceiver(mReceiver, filter)
+    }
+
+    fun bluetooth_on_text(){
+
+        if (sharedPref.getInt("isBluetoothOn", 0) == 1){
+
+            textDeviceConnected.setText(getString(R.string.bluetooth_connected))
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        requireActivity().applicationContext.unregisterReceiver(mReceiver)
     }
 }
 
