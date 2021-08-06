@@ -10,15 +10,16 @@ MAX86150 max86150Sensor;         // instance of MAX86150 sensor
 
 
 void setup() {  
-  ble_device.begin(19200);
-  delay(100);
+  ble_device.begin(9600);
+  delay(500);
 
   // Name the bluetooth device and reset
+  ble_cmd("AT+ROLE0");
   ble_cmd("AT+NAMEHarp"); // printout device name
   ble_cmd("AT+RESET"); // reset module
   delay(500);
 
-  Serial.begin(19200);
+  Serial.begin(9600);
   Wire.begin();
   // Initialize PPG/ECG sensor
   if (max86150Sensor.begin(Wire, I2C_SPEED_FAST) == false)
@@ -41,7 +42,7 @@ void ble_cmd(const char * command){
   Serial.println(command);
   ble_device.println(command);
   //wait some time
-  delay(100);
+  delay(500);
   
   char reply[100];
   int i = 0;
@@ -51,6 +52,6 @@ void ble_cmd(const char * command){
   }
   //end the string
   reply[i] = '\0';
-  Serial.print(reply);
+  ble_device.println(reply);
   Serial.println("Reply end");
 }
