@@ -1,4 +1,4 @@
-function [ptt] = Calculate_PTT(ECG, PPG)
+function [PTT] = Calculate_PTT(ECG, PPG)
 
 [ECG, PPG] = Data_Processing(ECG, PPG);
 
@@ -45,6 +45,6 @@ ens_avg_ECG = mean(ECG_ensembles, 2);
 ens_avg_PPG = mean(PPG_ensembles, 2);
 [~, PPG_max_idx] = max(ens_avg_PPG);
 [~, ECG_max_idx] = max(ens_avg_ECG);
-ptt = (PPG_max_idx - ECG_max_idx)/sampling_rate; 
+PTT = (PPG_max_idx - ECG_max_idx)/sampling_rate; 
 
 end

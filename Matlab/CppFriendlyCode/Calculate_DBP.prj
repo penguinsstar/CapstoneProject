@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="1919767727" file="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.prj" location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" name="Calculate_DBP" preferred-package-location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" preferred-package-type="package.type.zip.flat" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="591756335" file="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.prj" location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" name="Calculate_DBP" preferred-package-location="C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode" preferred-package-type="package.type.zip.flat" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
       <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
@@ -885,7 +885,7 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>1482388545</param.AnnotationChecksum>
+    <param.AnnotationChecksum>1505689888</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
@@ -894,12 +894,12 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\Calculate_DBP</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>1919767727</var.gc.preBuildChecksum>
+    <var.gc.preBuildChecksum>591756335</var.gc.preBuildChecksum>
     <var.cfi.lastOutputRoot>codegen\mex\Calculate_DBP_mex</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>531288722</var.cfi.preBuildChecksum>
+    <var.cfi.preBuildChecksum>2749939046</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>testbench</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_PTT.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calibrate.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Data_Processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;1326715903&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_PTT.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calibrate.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Data_Processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;1421081993&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
     <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_DBP.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calculate_PTT.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Calibrate.m&lt;/file&gt;&lt;file&gt;C:\Users\Daniel\AndroidStudioProjects\ChironSolutions\Matlab\CppFriendlyCode\Data_Processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.NoDefaultJIT>false</param.NoDefaultJIT>
@@ -938,8 +938,8 @@
     <param.deeplearning.EnableDeepLearning>false</param.deeplearning.EnableDeepLearning>
     <param.deeplearning.TargetLib>option.deeplearning.targetlibrary.none</param.deeplearning.TargetLib>
     <var.cfiTargetLibSuppression>false</var.cfiTargetLibSuppression>
-    <var.hasMatlabDeepLearningSupportPackage>true</var.hasMatlabDeepLearningSupportPackage>
-    <var.hasGpuDeepLearningSupportPackage>true</var.hasGpuDeepLearningSupportPackage>
+    <var.hasMatlabDeepLearningSupportPackage>false</var.hasMatlabDeepLearningSupportPackage>
+    <var.hasGpuDeepLearningSupportPackage>false</var.hasGpuDeepLearningSupportPackage>
     <param.tensorrt.DataType>option.tensorrt.datatype.fp32</param.tensorrt.DataType>
     <param.tensorrt.DataPath />
     <param.tensorrt.NumCalibrationBatches>0</param.tensorrt.NumCalibrationBatches>
@@ -1057,8 +1057,6 @@
       <param.deeplearning.EnableDeepLearning />
       <param.deeplearning.TargetLib />
       <var.cfiTargetLibSuppression />
-      <var.hasMatlabDeepLearningSupportPackage />
-      <var.hasGpuDeepLearningSupportPackage />
       <param.tensorrt.DataType />
       <param.tensorrt.DataPath />
       <param.tensorrt.NumCalibrationBatches />
@@ -1119,10 +1117,13 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\Calculate_DBP.m">
-        <Marker>1627343461215</Marker>
+        <Marker>1628535979370</Marker>
+      </file>
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}\Calculate_PTT.m">
+        <Marker>1628535979461</Marker>
       </file>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\Calibrate.m">
-        <Marker>1627679086422</Marker>
+        <Marker>1628535979253</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench>
@@ -1134,8 +1135,7 @@
           <Input Name="SBP0" typeId="0" />
           <Input Name="DBP0" typeId="0" />
           <Input Name="PTT0" typeId="0" />
-          <Input Name="ECG" typeId="1" />
-          <Input Name="PPG" typeId="1" />
+          <Input Name="PTTcurrent" typeId="0" />
           <Input Name="gamma" typeId="0" />
           <idpTable>
             <type typeId="0">
@@ -1147,7 +1147,15 @@
               <Complex>false</Complex>
               <Sparse>false</Sparse>
             </type>
-            <type typeId="1">
+          </idpTable>
+        </Inputs>
+      </file>
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}\Calculate_PTT.m">
+        <Inputs fileName="Calculate_PTT.m" functionName="Calculate_PTT">
+          <Input Name="ECG" typeId="0" />
+          <Input Name="PPG" typeId="0" />
+          <idpTable>
+            <type typeId="0">
               <Class>double</Class>
               <Size>1000 x 1</Size>
               <Value />
@@ -1161,21 +1169,11 @@
       </file>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\Calibrate.m">
         <Inputs fileName="Calibrate.m" functionName="Calibrate">
-          <Input Name="ECG" typeId="0" />
-          <Input Name="PPG" typeId="0" />
-          <Input Name="RealDBP" typeId="1" />
-          <Input Name="RealSBP" typeId="1" />
+          <Input Name="PTT" typeId="0" />
+          <Input Name="RealDBP" typeId="0" />
+          <Input Name="RealSBP" typeId="0" />
           <idpTable>
             <type typeId="0">
-              <Class>double</Class>
-              <Size>1000 x 5</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>false</UserDefined>
-              <Complex>false</Complex>
-              <Sparse>false</Sparse>
-            </type>
-            <type typeId="1">
               <Class>double</Class>
               <Size>1 x 5</Size>
               <Value />
