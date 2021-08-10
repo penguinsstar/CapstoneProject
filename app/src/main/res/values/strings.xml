@@ -19,5 +19,6 @@
     <string name="connection_closed">BLE connection closed or failed to connect</string>
     <string name="connection_error">"Error with connection to BLE: %1$d"</string>
     <string name="reposition_module">Please hold steady for the module</string>
+    <string name="reposition_module_ptt">Please hold steady for the module (ptt)</string>
     <string name="bluetooth_connected">BLE device is connected</string>
 </resources>

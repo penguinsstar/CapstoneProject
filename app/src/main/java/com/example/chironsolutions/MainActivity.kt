@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
     var gamma = 0.031
     val REQUEST_ENABLE_BT = 0
     val PERMISSION_CODE = 1
-    var firstLoop = 1
 
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
@@ -195,64 +194,87 @@ class MainActivity : AppCompatActivity() {
 
                     if(sharedPref.getInt("isBluetoothOn", 0) == 1) {
 
-                        if(firstLoop == 1){
-                            Thread.sleep(10000)
-                            firstLoop = 0
-                        }
 
-                        val listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
+                        val listOfData =
+                            this@MainActivity.readDataLast1000(System.currentTimeMillis())
                         //var listOfData = this@MainActivity.readDebugDataLast1000(1000)
 
-                        var ecg = DoubleArray(1000)
-                        var ppg = DoubleArray(1000)
-                        for (i in listOfData.indices) {
+                        if (listOfData.size == 1000) {
 
-                            ecg[i] = listOfData[i].getECG()
-                            ppg[i] = listOfData[i].getPPG()
-                        }
+                            val ecg = DoubleArray(1000)
+                            val ppg = DoubleArray(1000)
+                            for (i in listOfData.indices) {
 
-                        val ptt = calculate_PTT_wrapper(ecg, ppg)
+                                ecg[i] = listOfData[i].getECG()
+                                ppg[i] = listOfData[i].getPPG()
+                            }
 
-                        if (sharedPref.getInt("isCalibrated", 0) == 1) {
+                            var ptt = 0.0
+                            try {
+                                ptt = calculate_PTT_wrapper(ecg, ppg)
+                            }
+                            catch(e: Exception){
+                                Toast.makeText(this@MainActivity, R.string.reposition_module_ptt, Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (ptt > 0.0 || ptt < 1.0) {
+
+                                if (sharedPref.getInt("isCalibrated", 0) == 1) {
 
 
-                            calculate_DBP_wrapper(ptt)
-                            sendBroadcast(Intent("new_data"))
-                        }
-                        else if (sharedPref.getInt("isCalibrated", 0) == 0) {
+                                    calculate_DBP_wrapper(ptt)
+                                    sendBroadcast(Intent("new_data"))
+                                } else if (sharedPref.getInt("isCalibrated", 0) == 0) {
 
-                            when (sharedPref.getInt("calibrationStep", 1)) {
-                                1 -> {
-                                    editor.putLong("PTT1", java.lang.Double.doubleToRawLongBits(ptt))
-                                    editor.putInt("calibrationStep", 2)
-                                    editor.apply()
-                                }
-                                2 -> {
-                                    editor.putLong("PTT2", java.lang.Double.doubleToRawLongBits(ptt))
-                                    editor.putInt("calibrationStep", 3)
-                                    editor.apply()
-                                }
-                                3 -> {
-                                    editor.putLong("PTT3", java.lang.Double.doubleToRawLongBits(ptt))
-                                    editor.putInt("calibrationStep", 4)
-                                    editor.apply()
-                                }
-                                4 -> {
-                                    editor.putLong("PTT4", java.lang.Double.doubleToRawLongBits(ptt))
-                                    editor.putInt("calibrationStep", 5)
-                                    editor.apply()
-                                }
-                                5 -> {
-                                    editor.putLong("PTT5", java.lang.Double.doubleToRawLongBits(ptt))
-                                    editor.putInt("calibrationStep", 0)
-                                    editor.apply()
-                                }
-                                else -> { // Note the block
+                                    when (sharedPref.getInt("calibrationStep", 1)) {
+                                        1 -> {
+                                            editor.putLong(
+                                                "PTT1",
+                                                java.lang.Double.doubleToRawLongBits(ptt)
+                                            )
+                                            editor.putInt("calibrationStep", 2)
+                                            editor.apply()
+                                        }
+                                        2 -> {
+                                            editor.putLong(
+                                                "PTT2",
+                                                java.lang.Double.doubleToRawLongBits(ptt)
+                                            )
+                                            editor.putInt("calibrationStep", 3)
+                                            editor.apply()
+                                        }
+                                        3 -> {
+                                            editor.putLong(
+                                                "PTT3",
+                                                java.lang.Double.doubleToRawLongBits(ptt)
+                                            )
+                                            editor.putInt("calibrationStep", 4)
+                                            editor.apply()
+                                        }
+                                        4 -> {
+                                            editor.putLong(
+                                                "PTT4",
+                                                java.lang.Double.doubleToRawLongBits(ptt)
+                                            )
+                                            editor.putInt("calibrationStep", 5)
+                                            editor.apply()
+                                        }
+                                        5 -> {
+                                            editor.putLong(
+                                                "PTT5",
+                                                java.lang.Double.doubleToRawLongBits(ptt)
+                                            )
+                                            editor.putInt("calibrationStep", 0)
+                                            editor.apply()
+                                        }
+                                        else -> { // Note the block
+
+                                        }
+                                    }
+
 
                                 }
                             }
-
-
                         }
                     }
                     mainHandler.postDelayed(this, 4000)
@@ -310,7 +332,6 @@ class MainActivity : AppCompatActivity() {
             //leDeviceListAdapter.addDevice(result.device)
             //leDeviceListAdapter.notifyDataSetChanged()
 
-//            Toast.makeText(this@MainActivity, getString(R.string.device_found, result.device.name), Toast.LENGTH_SHORT).show();
 
             //val device = result.device //can maybe skip name check
 //            if( device.name == "NAMEHarp"){
@@ -337,24 +358,19 @@ class MainActivity : AppCompatActivity() {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     var bool = gatt?.requestMtu(256)
-                    //Toast.makeText(this@MainActivity, R.string.device_connected, Toast.LENGTH_SHORT).show();
                     gatt?.discoverServices()
                 }
                 else {
-//                    Toast.makeText(this@MainActivity, R.string.connection_closed, Toast.LENGTH_SHORT).show();
                     gatt?.close()
                 }
             }
             else{
-//                Toast.makeText(this@MainActivity, getString(R.string.connection_error, status), Toast.LENGTH_SHORT).show()
                 gatt?.close()
             }
         }
 
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-
-            //Toast.makeText(this@MainActivity, R.string.services_discovered, Toast.LENGTH_SHORT).show();
 
             Thread.sleep(1000)
             val characteristic = gatt?.getService(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"))
