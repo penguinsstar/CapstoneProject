@@ -11,7 +11,9 @@
 
 /* Include files */
 #include "Calculate_PTT.h"
+#include "Calculate_DBP_data.h"
 #include "Calculate_DBP_emxutil.h"
+#include "Calculate_DBP_initialize.h"
 #include "Calculate_DBP_types.h"
 #include "Data_Processing.h"
 #include "diff.h"
@@ -19,8 +21,20 @@
 #include "minOrMax.h"
 #include <math.h>
 #include <string.h>
+#include <jni.h>
 
 /* Function Definitions */
+JNIEXPORT jdouble JNICALL
+Java_com_example_chironsolutions_MainActivity_00024calculations_calculate_1PTT(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jdoubleArray ecg,
+                                                                               jdoubleArray ppg)
+{
+  double* ecgPointer  = (*env)->GetDoubleArrayElements(env, ecg, 0);
+  double* ppgPointer  = (*env)->GetDoubleArrayElements(env, ppg, 0);
+  return Calculate_PTT(ecgPointer, ppgPointer);
+}
+
 double Calculate_PTT(const double ECG[1000], const double PPG[1000])
 {
   static short ECG_peaks_initial[998001];
@@ -32,6 +46,7 @@ double Calculate_PTT(const double ECG[1000], const double PPG[1000])
   emxArray_real_T *x;
   double b_ECG[1000];
   double b_PPG[1000];
+  double PTT;
   double a__1;
   double a__2;
   double bsum;
@@ -39,7 +54,6 @@ double Calculate_PTT(const double ECG[1000], const double PPG[1000])
   double d1;
   double ex;
   double l_limit;
-  double ptt;
   double r;
   double u_limit;
   double window_size;
@@ -77,6 +91,9 @@ double Calculate_PTT(const double ECG[1000], const double PPG[1000])
   int loop_ub;
   int nblocks;
   int xblockoffset;
+  if (!isInitialized_Calculate_DBP) {
+    Calculate_DBP_initialize();
+  }
   memcpy(&b_ECG[0], &ECG[0], 1000U * sizeof(double));
   memcpy(&b_PPG[0], &PPG[0], 1000U * sizeof(double));
   Data_Processing(b_ECG, b_PPG);
@@ -230,12 +247,12 @@ double Calculate_PTT(const double ECG[1000], const double PPG[1000])
   maximum(r1, &a__1, &iindx);
   mean(ECG_ensembles, b_r);
   maximum(b_r, &a__2, &b_iindx);
-  ptt = ((double)iindx - (double)b_iindx) / 100.0;
+  PTT = ((double)iindx - (double)b_iindx) / 100.0;
   emxFree_real_T(&r1);
   emxFree_real_T(&b_r);
   emxFree_real_T(&PPG_ensembles);
   emxFree_real_T(&ECG_ensembles);
-  return ptt;
+  return PTT;
 }
 
 /* End of code generation (Calculate_PTT.c) */

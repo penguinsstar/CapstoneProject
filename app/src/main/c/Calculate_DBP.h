@@ -24,8 +24,7 @@ extern "C" {
 
 /* Function Declarations */
 extern double Calculate_DBP(double SBP0, double DBP0, double PTT0,
-                            const double ECG[1000], const double PPG[1000],
-                            double b_gamma);
+                            double PTTcurrent, double b_gamma);
 
 #ifdef __cplusplus
 }

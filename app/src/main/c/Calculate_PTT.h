@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-double Calculate_PTT(const double ECG[1000], const double PPG[1000]);
+extern double Calculate_PTT(const double ECG[1000], const double PPG[1000]);
 
 #ifdef __cplusplus
 }

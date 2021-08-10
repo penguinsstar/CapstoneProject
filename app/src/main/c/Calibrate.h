@@ -23,9 +23,9 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void Calibrate(const double ECG[5000], const double PPG[5000],
-                      const double RealDBP[5], const double RealSBP[5],
-                      double *SBP0, double *DBP0, double *PTT0);
+extern void Calibrate(const double PTT[5], const double RealDBP[5],
+                      const double RealSBP[5], double *SBP0, double *DBP0,
+                      double *PTT0);
 
 #ifdef __cplusplus
 }

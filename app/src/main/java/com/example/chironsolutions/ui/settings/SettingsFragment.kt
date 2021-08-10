@@ -267,61 +267,25 @@ class CalibrateDialogFragment : DialogFragment() {
                                     RealDBP5 = (inputDBPSeekBar.getProgress() + 50).toDouble()
                                     RealSBP5 = (inputSBPSeekBar.getProgress() + 80).toDouble()
 
-                                    var ecg = DoubleArray(5000)
-                                    var ppg = DoubleArray(5000)
 
-                                    var listOfData =
-                                        (activity as MainActivity).readDataLast1000(CalibrateTime1)
-                                    for (i in listOfData.indices) {
 
-                                        ecg[i] = listOfData[i].getECG()
-                                        ppg[i] = listOfData[i].getPPG()
-                                    }
-                                    listOfData =
-                                        (activity as MainActivity).readDataLast1000(CalibrateTime2)
-                                    for (i in listOfData.indices) {
-
-                                        ecg[i + 1000] = listOfData[i].getECG()
-                                        ppg[i + 1000] = listOfData[i].getPPG()
-                                    }
-                                    listOfData =
-                                        (activity as MainActivity).readDataLast1000(CalibrateTime3)
-                                    for (i in listOfData.indices) {
-
-                                        ecg[i + 2000] = listOfData[i].getECG()
-                                        ppg[i + 2000] = listOfData[i].getPPG()
-                                    }
-                                    listOfData =
-                                        (activity as MainActivity).readDataLast1000(CalibrateTime4)
-                                    for (i in listOfData.indices) {
-
-                                        ecg[i + 3000] = listOfData[i].getECG()
-                                        ppg[i + 3000] = listOfData[i].getPPG()
-                                    }
-                                    listOfData =
-                                        (activity as MainActivity).readDataLast1000(CalibrateTime5)
-                                    for (i in listOfData.indices) {
-
-                                        ecg[i + 4000] = listOfData[i].getECG()
-                                        ppg[i + 4000] = listOfData[i].getPPG()
-                                    }
-
-                                    var realDBP = doubleArrayOf(
+                                    val realDBP = doubleArrayOf(
                                         RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5
                                     )
 
-                                    var realSBP = doubleArrayOf(
+                                    val realSBP = doubleArrayOf(
                                         RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5
                                     )
 
-
-                                    (activity as MainActivity).calibrate_wrapper(
-                                        ecg,
-                                        ppg,
-                                        realDBP,
-                                        realSBP
+                                    val ptt = doubleArrayOf(
+                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT1", 0L)),
+                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT2", 0L)),
+                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT3", 0L)),
+                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT4", 0L)),
+                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT5", 0L))
                                     )
 
+                                    (activity as MainActivity).calibrate_wrapper(ptt, realDBP, realSBP)
 
                                     RealDBP1 = 0.0
                                     RealDBP2 = 0.0

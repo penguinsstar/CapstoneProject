@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     var gamma = 0.031
     val REQUEST_ENABLE_BT = 0
     val PERMISSION_CODE = 1
+    var firstLoop = 1
 
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
@@ -65,8 +67,9 @@ class MainActivity : AppCompatActivity() {
 
 
         sharedPref = this@MainActivity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        var editor = sharedPref.edit()
+        val editor = sharedPref.edit()
         editor.putInt("isBluetoothOn", 0)
+        editor.putInt("calibrationStep", 1)
         editor.apply()
 
 
@@ -182,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         }
         */
 
-        GlobalScope.launch(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.IO) {
 
             Thread.sleep(10000)
             val mainHandler = Handler(Looper.getMainLooper())
@@ -190,10 +193,16 @@ class MainActivity : AppCompatActivity() {
             mainHandler.post(object : Runnable {
                 override fun run() {
 
-                    if(sharedPref.getInt("isCalibrated", 0) == 1 && sharedPref.getInt("isBluetoothOn", 0) == 1) {
+                    if(sharedPref.getInt("isBluetoothOn", 0) == 1) {
 
-                        var listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
+                        if(firstLoop == 1){
+                            Thread.sleep(10000)
+                            firstLoop = 0
+                        }
+
+                        val listOfData = this@MainActivity.readDataLast1000(System.currentTimeMillis())
                         //var listOfData = this@MainActivity.readDebugDataLast1000(1000)
+
                         var ecg = DoubleArray(1000)
                         var ppg = DoubleArray(1000)
                         for (i in listOfData.indices) {
@@ -202,10 +211,51 @@ class MainActivity : AppCompatActivity() {
                             ppg[i] = listOfData[i].getPPG()
                         }
 
-                        calculate_DBP_wrapper(ecg, ppg)
-                        sendBroadcast(Intent("new_data"))
+                        val ptt = calculate_PTT_wrapper(ecg, ppg)
+
+                        if (sharedPref.getInt("isCalibrated", 0) == 1) {
+
+
+                            calculate_DBP_wrapper(ptt)
+                            sendBroadcast(Intent("new_data"))
+                        }
+                        else if (sharedPref.getInt("isCalibrated", 0) == 0) {
+
+                            when (sharedPref.getInt("calibrationStep", 1)) {
+                                1 -> {
+                                    editor.putLong("PTT1", java.lang.Double.doubleToRawLongBits(ptt))
+                                    editor.putInt("calibrationStep", 2)
+                                    editor.apply()
+                                }
+                                2 -> {
+                                    editor.putLong("PTT2", java.lang.Double.doubleToRawLongBits(ptt))
+                                    editor.putInt("calibrationStep", 3)
+                                    editor.apply()
+                                }
+                                3 -> {
+                                    editor.putLong("PTT3", java.lang.Double.doubleToRawLongBits(ptt))
+                                    editor.putInt("calibrationStep", 4)
+                                    editor.apply()
+                                }
+                                4 -> {
+                                    editor.putLong("PTT4", java.lang.Double.doubleToRawLongBits(ptt))
+                                    editor.putInt("calibrationStep", 5)
+                                    editor.apply()
+                                }
+                                5 -> {
+                                    editor.putLong("PTT5", java.lang.Double.doubleToRawLongBits(ptt))
+                                    editor.putInt("calibrationStep", 0)
+                                    editor.apply()
+                                }
+                                else -> { // Note the block
+
+                                }
+                            }
+
+
+                        }
                     }
-                    mainHandler.postDelayed(this, 10000)
+                    mainHandler.postDelayed(this, 4000)
                 }
             })
         }
@@ -402,37 +452,48 @@ class MainActivity : AppCompatActivity() {
     }
 
     object calculations {
-        external fun calculate_DBP(SBP0: Double, DBP0: Double, PTT0: Double,
-                                   ECG: DoubleArray, PPG: DoubleArray, gamma: Double): Double
+        external fun calculate_PTT(ECG: DoubleArray, PPG: DoubleArray): Double
+
+        external fun calculate_DBP(SBP0: Double, DBP0: Double, PTT0: Double, PTTcurrent: Double, gamma: Double): Double
+
         external fun calibrate(
-            ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray): DoubleArray // SBP0, DBP0, PTT0, fPTT0, fDBP0
+            PTT: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray): DoubleArray // SBP0, DBP0, PTT0, fPTT0, fDBP0
 
         init {
             System.loadLibrary("native-lib")
         }
     }
 
-    fun calibrate_wrapper(ECG: DoubleArray, PPG: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray){
+    fun calculate_PTT_wrapper(ECG: DoubleArray, PPG: DoubleArray): Double{
 
 
-        var value = calculations.calibrate(ECG, PPG, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
+        return calculations.calculate_PTT(ECG, PPG)
+    }
+
+    fun calibrate_wrapper(PTT: DoubleArray, RealDBP: DoubleArray, RealSBP: DoubleArray){
+
+
+        var value = calculations.calibrate(PTT, RealDBP, RealSBP) // SBP0, DBP0, PTT0, fPTT0, fDBP0
 
         val editor = sharedPref.edit()
         editor.putLong("SBP0", java.lang.Double.doubleToRawLongBits(value[0]))
         editor.putLong("DBP0", java.lang.Double.doubleToRawLongBits(value[1]))
         editor.putLong("PTT0", java.lang.Double.doubleToRawLongBits(value[2]))
         editor.putInt("isCalibrated", 1)
+        editor.putInt("calibrationStep", 1)
         editor.apply()
-
 
     }
 
-    fun calculate_DBP_wrapper(ECG: DoubleArray, PPG: DoubleArray){
+    fun calculate_DBP_wrapper(PTT: Double){
 
 //debug off
         //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
-        var latestDBP = calculations.calculate_DBP(java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
-            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)), java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)), ECG, PPG, gamma)
+        var latestDBP = calculations.calculate_DBP(
+            java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
+            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)),
+            java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)),
+            PTT, gamma)
 
         if (latestDBP < 30 || latestDBP > 200){
             latestDBP = 0.0
