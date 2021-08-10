@@ -23,4 +23,5 @@
     <string name="bluetooth_connected">BLE device is connected</string>
     <string name="calibrating">calibrating ...</string>
     <string name="calibrating_wait">calibrating ... please wait</string>
+    <string name="calibration_done">calibration complete</string>
 </resources>

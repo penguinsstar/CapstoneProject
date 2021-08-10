@@ -91,6 +91,8 @@ class SettingsFragment : Fragment() {
                     (activity as MainActivity).calibrate_wrapper(ptt, realDBP, realSBP)
 
                     CalibrateTotal = 0
+                    CalibrationReadyReal = 0
+                    Toast.makeText(requireContext(), R.string.calibration_done, Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -317,8 +319,11 @@ class CalibrateDialogFragment : DialogFragment() {
 
                                             CalibrateTotal = 0
                                             CalibrationReadyReal = 0
+                                            Toast.makeText(requireContext(), R.string.calibration_done, Toast.LENGTH_SHORT).show()
                                         }
-                                        Toast.makeText(requireContext(), R.string.calibrating, Toast.LENGTH_SHORT).show()
+                                        else{
+                                            Toast.makeText(requireContext(), R.string.calibrating, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                     else{
 
@@ -385,6 +390,7 @@ class ClearDataDialogFragment : DialogFragment() {
                         RealSBP5 = 0.0
 
                         CalibrateTotal = 0
+                        CalibrationReadyReal = 0
                     })
                 .setNegativeButton("cancel",
                     DialogInterface.OnClickListener { dialog, id ->
