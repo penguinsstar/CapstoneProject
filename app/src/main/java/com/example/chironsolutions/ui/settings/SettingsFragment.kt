@@ -42,13 +42,9 @@ var RealSBP3: Double = 0.0
 var RealSBP4: Double = 0.0
 var RealSBP5: Double = 0.0
 
-var CalibrateTime1: Long = 0L
-var CalibrateTime2: Long = 0L
-var CalibrateTime3: Long = 0L
-var CalibrateTime4: Long = 0L
-var CalibrateTime5: Long = 0L
-
 var CalibrateTotal: Int = 0
+var CalibrationReadyPTT: Int = 0
+var CalibrationReadyReal: Int = 0
 
 class SettingsFragment : Fragment() {
 
@@ -67,7 +63,40 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-    val filter = IntentFilter("bluetooth_on")
+    val mfilter = IntentFilter("bluetooth_on")
+
+    val pReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if ("calibration_ready" == intent.action) {
+
+                CalibrationReadyPTT = 1
+                if(CalibrationReadyReal == 1){
+
+                    val realDBP = doubleArrayOf(
+                        RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5
+                    )
+
+                    val realSBP = doubleArrayOf(
+                        RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5
+                    )
+
+                    val ptt = doubleArrayOf(
+                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT1", 0L)),
+                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT2", 0L)),
+                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT3", 0L)),
+                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT4", 0L)),
+                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT5", 0L))
+                    )
+
+                    (activity as MainActivity).calibrate_wrapper(ptt, realDBP, realSBP)
+
+                    CalibrateTotal = 0
+                }
+
+            }
+        }
+    }
+    val pfilter = IntentFilter("calibration_ready")
 
 
     override fun onCreateView(
@@ -133,7 +162,8 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        requireActivity().applicationContext.registerReceiver(mReceiver, filter)
+        requireActivity().applicationContext.registerReceiver(mReceiver, mfilter)
+        requireActivity().applicationContext.registerReceiver(pReceiver, pfilter)
     }
 
     fun bluetooth_on_text(){
@@ -149,6 +179,7 @@ class SettingsFragment : Fragment() {
         _binding = null
 
         requireActivity().applicationContext.unregisterReceiver(mReceiver)
+        requireActivity().applicationContext.unregisterReceiver(pReceiver)
     }
 }
 
@@ -222,7 +253,6 @@ class CalibrateDialogFragment : DialogFragment() {
 
                             when (CalibrateTotal) {
                                 0 -> {
-                                    CalibrateTime1 = currentTimeMillis()
                                     CalibrateTotal = 1
                                     RealDBP1 = (inputDBPSeekBar.getProgress() + 50).toDouble()
                                     RealSBP1 = (inputSBPSeekBar.getProgress() + 80).toDouble()
@@ -232,7 +262,6 @@ class CalibrateDialogFragment : DialogFragment() {
                                     calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
                                 1 -> {
-                                    CalibrateTime2 = currentTimeMillis()
                                     CalibrateTotal = 2
                                     RealDBP2 = (inputDBPSeekBar.getProgress() + 50).toDouble()
                                     RealSBP2 = (inputSBPSeekBar.getProgress() + 80).toDouble()
@@ -242,7 +271,6 @@ class CalibrateDialogFragment : DialogFragment() {
                                     calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
                                 2 -> {
-                                    CalibrateTime3 = currentTimeMillis()
                                     CalibrateTotal = 3
                                     RealDBP3 = (inputDBPSeekBar.getProgress() + 50).toDouble()
                                     RealSBP3 = (inputSBPSeekBar.getProgress() + 80).toDouble()
@@ -252,7 +280,6 @@ class CalibrateDialogFragment : DialogFragment() {
                                     calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
                                 3 -> {
-                                    CalibrateTime4 = currentTimeMillis()
                                     CalibrateTotal = 4
                                     RealDBP4 = (inputDBPSeekBar.getProgress() + 50).toDouble()
                                     RealSBP4 = (inputSBPSeekBar.getProgress() + 80).toDouble()
@@ -262,50 +289,41 @@ class CalibrateDialogFragment : DialogFragment() {
                                     calibrateDialogFragment.show(fm, "fragment_calibrate_dialog")
                                 }
                                 4 -> {
-                                    CalibrateTime5 = currentTimeMillis()
-                                    CalibrateTotal = 0
-                                    RealDBP5 = (inputDBPSeekBar.getProgress() + 50).toDouble()
-                                    RealSBP5 = (inputSBPSeekBar.getProgress() + 80).toDouble()
+                                    if(CalibrationReadyReal == 0){
 
+                                        CalibrationReadyReal = 1
+                                        RealDBP5 = (inputDBPSeekBar.getProgress() + 50).toDouble()
+                                        RealSBP5 = (inputSBPSeekBar.getProgress() + 80).toDouble()
 
+                                        if(CalibrationReadyPTT == 1){
 
-                                    val realDBP = doubleArrayOf(
-                                        RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5
-                                    )
+                                            val realDBP = doubleArrayOf(
+                                                RealDBP1, RealDBP2, RealDBP3, RealDBP4, RealDBP5
+                                            )
 
-                                    val realSBP = doubleArrayOf(
-                                        RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5
-                                    )
+                                            val realSBP = doubleArrayOf(
+                                                RealSBP1, RealSBP2, RealSBP3, RealSBP4, RealSBP5
+                                            )
 
-                                    val ptt = doubleArrayOf(
-                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT1", 0L)),
-                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT2", 0L)),
-                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT3", 0L)),
-                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT4", 0L)),
-                                        java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT5", 0L))
-                                    )
+                                            val ptt = doubleArrayOf(
+                                                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT1", 0L)),
+                                                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT2", 0L)),
+                                                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT3", 0L)),
+                                                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT4", 0L)),
+                                                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT5", 0L))
+                                            )
 
-                                    (activity as MainActivity).calibrate_wrapper(ptt, realDBP, realSBP)
+                                            (activity as MainActivity).calibrate_wrapper(ptt, realDBP, realSBP)
 
-                                    RealDBP1 = 0.0
-                                    RealDBP2 = 0.0
-                                    RealDBP3 = 0.0
-                                    RealDBP4 = 0.0
-                                    RealDBP5 = 0.0
+                                            CalibrateTotal = 0
+                                            CalibrationReadyReal = 0
+                                        }
+                                        Toast.makeText(requireContext(), R.string.calibrating, Toast.LENGTH_SHORT).show()
+                                    }
+                                    else{
 
-                                    RealSBP1 = 0.0
-                                    RealSBP2 = 0.0
-                                    RealSBP3 = 0.0
-                                    RealSBP4 = 0.0
-                                    RealSBP5 = 0.0
-
-                                    CalibrateTime1 = 0L
-                                    CalibrateTime2 = 0L
-                                    CalibrateTime3 = 0L
-                                    CalibrateTime4 = 0L
-                                    CalibrateTime5 = 0L
-
-                                    CalibrateTotal = 0
+                                        Toast.makeText(requireContext(), R.string.calibrating_wait, Toast.LENGTH_SHORT).show()
+                                    }
 
                                 }
                                 else -> { // Note the block
@@ -365,12 +383,6 @@ class ClearDataDialogFragment : DialogFragment() {
                         RealSBP3 = 0.0
                         RealSBP4 = 0.0
                         RealSBP5 = 0.0
-
-                        CalibrateTime1 = 0L
-                        CalibrateTime2 = 0L
-                        CalibrateTime3 = 0L
-                        CalibrateTime4 = 0L
-                        CalibrateTime5 = 0L
 
                         CalibrateTotal = 0
                     })

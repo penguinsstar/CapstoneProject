@@ -21,4 +21,6 @@
     <string name="reposition_module">Please hold steady for the module</string>
     <string name="reposition_module_ptt">Please hold steady for the module (ptt)</string>
     <string name="bluetooth_connected">BLE device is connected</string>
+    <string name="calibrating">calibrating ...</string>
+    <string name="calibrating_wait">calibrating ... please wait</string>
 </resources>

@@ -221,9 +221,9 @@ class MainActivity : AppCompatActivity() {
 
                                 if (sharedPref.getInt("isCalibrated", 0) == 1) {
 
-
                                     calculate_DBP_wrapper(ptt)
                                     sendBroadcast(Intent("new_data"))
+
                                 } else if (sharedPref.getInt("isCalibrated", 0) == 0) {
 
                                     when (sharedPref.getInt("calibrationStep", 1)) {
@@ -266,6 +266,7 @@ class MainActivity : AppCompatActivity() {
                                             )
                                             editor.putInt("calibrationStep", 0)
                                             editor.apply()
+                                            sendBroadcast(Intent("calibration_ready"))
                                         }
                                         else -> { // Note the block
 
