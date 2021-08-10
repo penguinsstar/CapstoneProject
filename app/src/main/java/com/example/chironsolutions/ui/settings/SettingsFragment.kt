@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
 import android.content.*
+import android.graphics.Color
 import android.os.Bundle
 import android.os.ParcelUuid
 import android.view.LayoutInflater
@@ -65,6 +66,24 @@ class SettingsFragment : Fragment() {
     }
     val mfilter = IntentFilter("bluetooth_on")
 
+    val gReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if ("good" == intent.action) {
+                statusView.setBackgroundColor(Color.parseColor("#00FF00"))
+            }
+        }
+    }
+    val gfilter = IntentFilter("good")
+
+    val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if ("bad" == intent.action) {
+                statusView.setBackgroundColor(Color.parseColor("#FF0000"))
+            }
+        }
+    }
+    val bfilter = IntentFilter("bad")
+
     val pReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if ("calibration_ready" == intent.action) {
@@ -122,6 +141,7 @@ class SettingsFragment : Fragment() {
         return root
     }
 
+    lateinit var statusView : View
     lateinit var textDeviceConnected : TextView
 
     override fun onViewCreated(
@@ -131,6 +151,7 @@ class SettingsFragment : Fragment() {
         val btnClearUserData = idBtnClearUserData
         val btnCalibrate = idBtnCalibrate
         val btnSeekBLEDevice = idBtnSeekBLEDevice
+        statusView = idStatus
         textDeviceConnected = idTextDeviceConnected
 
         if (sharedPref.getInt("isBluetoothOn", 0) == 1){
@@ -166,6 +187,8 @@ class SettingsFragment : Fragment() {
 
         requireActivity().applicationContext.registerReceiver(mReceiver, mfilter)
         requireActivity().applicationContext.registerReceiver(pReceiver, pfilter)
+        requireActivity().applicationContext.registerReceiver(gReceiver, gfilter)
+        requireActivity().applicationContext.registerReceiver(bReceiver, bfilter)
     }
 
     fun bluetooth_on_text(){
@@ -182,6 +205,8 @@ class SettingsFragment : Fragment() {
 
         requireActivity().applicationContext.unregisterReceiver(mReceiver)
         requireActivity().applicationContext.unregisterReceiver(pReceiver)
+        requireActivity().applicationContext.unregisterReceiver(gReceiver)
+        requireActivity().applicationContext.unregisterReceiver(bReceiver)
     }
 }
 

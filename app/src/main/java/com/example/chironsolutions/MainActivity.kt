@@ -214,11 +214,13 @@ class MainActivity : AppCompatActivity() {
                                 ptt = calculate_PTT_wrapper(ecg, ppg)
                             }
                             catch(e: Exception){
-                                Toast.makeText(this@MainActivity, R.string.reposition_module_ptt, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this@MainActivity, R.string.reposition_module_ptt, Toast.LENGTH_SHORT).show()
+                                sendBroadcast(Intent("bad"))
                             }
 
                             if (ptt > 0.0 || ptt < 1.0) {
 
+                                sendBroadcast(Intent("good"))
                                 if (sharedPref.getInt("isCalibrated", 0) == 1) {
 
                                     calculate_DBP_wrapper(ptt)
@@ -275,6 +277,9 @@ class MainActivity : AppCompatActivity() {
 
 
                                 }
+                            }
+                            else{
+                                sendBroadcast(Intent("bad"))
                             }
                         }
                     }
