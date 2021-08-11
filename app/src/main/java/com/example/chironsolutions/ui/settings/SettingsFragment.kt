@@ -44,6 +44,7 @@ var RealSBP4: Double = 0.0
 var RealSBP5: Double = 0.0
 
 var CalibrateTotal: Int = 0
+var CalibrateTotalDone: Int = 0
 var CalibrationReadyPTT: Int = 0
 var CalibrationReadyReal: Int = 0
 
@@ -69,7 +70,12 @@ class SettingsFragment : Fragment() {
     val gReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if ("good" == intent.action) {
-                statusView.setBackgroundColor(Color.parseColor("#00FF00"))
+
+                if (CalibrateTotalDone < 5) {
+
+                    CalibrateTotalDone = CalibrateTotalDone + 1
+                    statusView.setText(getString(R.string.calibration_status, CalibrateTotalDone))
+                }
             }
         }
     }
@@ -78,7 +84,7 @@ class SettingsFragment : Fragment() {
     val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if ("bad" == intent.action) {
-                statusView.setBackgroundColor(Color.parseColor("#FF0000"))
+                //statusView.setBackgroundColor(Color.parseColor("#FF0000"))
             }
         }
     }
@@ -141,7 +147,7 @@ class SettingsFragment : Fragment() {
         return root
     }
 
-    lateinit var statusView : View
+    lateinit var statusView : TextView
     lateinit var textDeviceConnected : TextView
 
     override fun onViewCreated(

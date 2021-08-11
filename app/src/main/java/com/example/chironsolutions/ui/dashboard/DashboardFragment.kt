@@ -78,7 +78,7 @@ class DashboardFragment : Fragment() {
         var endTime = Date(listOfData[listOfData.lastIndex].getDate())
         for (i in listOfData.indices) {
 
-            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 86400000)
+            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 100)
         }
         lastIndex = listOfData.size
 
@@ -117,7 +117,7 @@ class DashboardFragment : Fragment() {
         var endTime = Date(listOfData[listOfData.lastIndex].getDate())
         for (i in lastIndex until listOfData.size) {
 
-            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 86400000)
+            series.appendData(DataPoint(Date(listOfData[i].getDate()),listOfData[i].getDBP()), true, 100)
         }
         lastIndex = listOfData.size
         graphView.getViewport().setMaxX(endTime.getTime().toDouble())

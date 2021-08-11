@@ -8,6 +8,7 @@
     <string name="title_settings_header">Chiron Solutions - Settings</string>
     <string name="preference_file_key">preference_file_key</string>
     <string name="calibration_title">Calibrating step (%1$d/5)</string>
+    <string name="calibration_status">%1$d/5</string>
     <string name="ble_not_supported">Bluetooth low energy not supported on this device</string>
     <string name="bluetooth_off">"Bluetooth not connected "</string>
     <string name="connect_to_bluetooth">Attempting to connect to BLE device</string>

@@ -218,15 +218,17 @@ class MainActivity : AppCompatActivity() {
                                 sendBroadcast(Intent("bad"))
                             }
 
-                            if (ptt > 0.0 || ptt < 1.0) {
+                            if (sharedPref.getInt("isCalibrated", 0) == 1) {
+
+                                calculate_DBP_wrapper(ptt)
+                                sendBroadcast(Intent("new_data"))
+                            }
+
+                            if (ptt > 0.01 && ptt < 0.3) {
 
                                 sendBroadcast(Intent("good"))
-                                if (sharedPref.getInt("isCalibrated", 0) == 1) {
 
-                                    calculate_DBP_wrapper(ptt)
-                                    sendBroadcast(Intent("new_data"))
-
-                                } else if (sharedPref.getInt("isCalibrated", 0) == 0) {
+                                if (sharedPref.getInt("isCalibrated", 0) == 0) {
 
                                     when (sharedPref.getInt("calibrationStep", 1)) {
                                         1 -> {
@@ -511,11 +513,18 @@ class MainActivity : AppCompatActivity() {
 
 //debug off
         //var latestDBP = calculations.calculate_DBP(114.8, 66.4, 0.1, ECG, PPG, gamma)
-        var latestDBP = calculations.calculate_DBP(
-            java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
-            java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)),
-            java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)),
-            PTT, gamma)
+
+
+        var latestDBP = 0.0
+        if (PTT > 0.01 && PTT < 0.3){
+
+            latestDBP = calculations.calculate_DBP(
+                java.lang.Double.longBitsToDouble(sharedPref.getLong("SBP0", 0L)),
+                java.lang.Double.longBitsToDouble(sharedPref.getLong("DBP0", 0L)),
+                java.lang.Double.longBitsToDouble(sharedPref.getLong("PTT0", 0L)),
+                PTT, gamma
+            )
+        }
 
         if (latestDBP < 30 || latestDBP > 200){
             latestDBP = 0.0

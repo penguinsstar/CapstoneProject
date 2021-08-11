@@ -187,6 +187,11 @@ double Calculate_PTT(const double ECG[1000], const double PPG[1000])
   i2 = ECG_ensembles->size[0] * ECG_ensembles->size[1];
   ECG_ensembles->size[0] = (int)window_size;
   ECG_ensembles->size[1] = loop_ub - 1;
+
+  if(loop_ub < 5 || loop_ub > 15){
+      return 0;
+  }
+
   emxEnsureCapacity_real_T(ECG_ensembles, i2);
   b_loop_ub = (int)window_size * (loop_ub - 1);
   for (i3 = 0; i3 < b_loop_ub; i3++) {
